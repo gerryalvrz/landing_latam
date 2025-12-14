@@ -88,18 +88,9 @@ async function assertGithubRepoHasNoPreBuildathonActivity(repoUrl: string) {
     throw new Error("Could not verify GitHub repo activity. Please try again later.");
   }
 
-  const repoJson = (await repoRes.json()) as { created_at?: string } | null;
-  const createdAtString = repoJson?.created_at;
-  const createdAt = createdAtString ? new Date(createdAtString) : null;
-  if (!createdAt || Number.isNaN(createdAt.getTime())) {
-    throw new Error("Could not read GitHub repo creation date. Please try again later.");
-  }
-
-  if (createdAt.getTime() < startAt.getTime()) {
-    throw new Error(
-      `GitHub repos should have no activity before the buildathon start date (${startAt.toISOString().slice(0, 10)}).`,
-    );
-  }
+  // We allow repos to be created before the buildathon start date,
+  // as long as they have no commits before that date.
+  // This enables pre-registration with empty repos.
 
   // Check commits strictly before start.
   const commitsRes = await fetch(
