@@ -14,15 +14,58 @@ datasource db {
 }
 
 model BuildathonRegistration {
-  id            String   @id @default(cuid())
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id            String    @id @default(cuid())
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
   teamName      String
   teamMembers   String
   githubRepo    String?
   karmaGapLink  String?
   userAgent     String?
+  projects      Project[]
 
   @@index([createdAt])
   @@map("buildathon_registrations")
+}
+
+model Project {
+  id                     String                  @id @default(cuid())
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+  name                   String
+  description            String?
+  registrationId         String
+  registration           BuildathonRegistration  @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+  milestoneSubmissions   MilestoneSubmission[]
+
+  @@index([registrationId])
+  @@map("projects")
+}
+
+enum MilestoneType {
+  REGISTRATION
+  TESTNET
+  KARMA_GAP
+  MAINNET
+  FARCASTER
+  FINAL_SUBMISSION
+}
+
+model MilestoneSubmission {
+  id                String        @id @default(cuid())
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  projectId         String
+  project           Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  milestoneType     MilestoneType
+  contractAddress   String?
+  karmaGapLink      String?
+  farcasterLink     String?
+  slidesLink        String?
+  pitchDeckLink     String?
+
+  @@unique([projectId, milestoneType])
+  @@index([projectId])
+  @@index([milestoneType])
+  @@map("milestone_submissions")
 }

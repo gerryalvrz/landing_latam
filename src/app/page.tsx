@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import {
   GlobeIcon,
   LightningBoltIcon,
@@ -6,6 +9,7 @@ import {
 } from "@radix-ui/react-icons";
 
 import { Faq } from "@/components/faq";
+import { MilestoneModal } from "@/components/milestones/MilestoneModal";
 import RegisterButton from "@/components/register/RegisterButton";
 import { Container, Section, SectionHeader } from "@/components/section";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -27,9 +31,14 @@ import {
   NAV_LINKS,
   TIMELINE,
   TRACKS,
+  type MilestoneType,
 } from "@/app/home-content";
 
 export default function Home() {
+  const [selectedMilestone, setSelectedMilestone] = useState<{
+    step: string;
+    type: MilestoneType;
+  } | null>(null);
   const iconByKey = {
     rocket: <RocketIcon className="h-5 w-5" />,
     globe: <GlobeIcon className="h-5 w-5" />,
@@ -84,7 +93,7 @@ export default function Home() {
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
                     <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
                   </span>
-                  Pre-registrations: Dec 15 → Jan 16
+                  Pre-registrations: Dec 15, 2025 → Jan 16, 2026
                 </div>
                 <h1 className="mt-6 text-balance text-4xl font-title font-[200] leading-[1.1] tracking-tight sm:text-6xl sm:leading-[1.1]">
                   {INFO.tagline}
@@ -122,15 +131,15 @@ export default function Home() {
                 </div>
 
                 <div className="mt-10 grid gap-3 sm:grid-cols-3">
-                  <Stat label="Buildathon" value="Jan 19 → Feb 27" />
-                  <Stat label="Winners" value="Mar 6" />
-                  <Stat label="Region" value="LATAM" />
+                  <Stat label="Buildathon" value="Jan 19 → Feb 27, 2026" />
+                  <Stat label="Winners" value="Mar 6, 2026" />
+                  <Stat label="Region" value="Latin America" />
                 </div>
 
                 <div className="mt-3 grid gap-3 sm:grid-cols-3">
-                  <Stat label="1st place" value="$1,000" />
-                  <Stat label="2nd place" value="$500" />
-                  <Stat label="3rd place" value="$250" />
+                  <Stat label="1st place" value="TBA" />
+                  <Stat label="2nd place" value="TBA" />
+                  <Stat label="3rd place" value="TBA" />
                 </div>
 
                 <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -202,9 +211,9 @@ export default function Home() {
                   </div>
 
                   <div className="mt-5 space-y-3 text-sm">
-                    <ChecklistItem>Register via the form</ChecklistItem>
-                    <ChecklistItem>Build on testnet → mainnet</ChecklistItem>
-                    <ChecklistItem>Submit via form with Karma Gap link</ChecklistItem>
+                    <ChecklistItem>Register using the form in this website</ChecklistItem>
+                    <ChecklistItem>Mark milestones as completed in this website</ChecklistItem>
+                    <ChecklistItem>Submit your project by end of Buildathon</ChecklistItem>
                   </div>
 
                   <div className="mt-6 flex flex-col gap-3 sm:flex-row">
@@ -342,7 +351,11 @@ export default function Home() {
               </div>
               <div className="divide-y divide-border dark:divide-[color:var(--celo-border)]">
                 {MILESTONES.map((m) => (
-                  <div key={m.step} className="grid grid-cols-12 px-4 py-3">
+                  <button
+                    key={m.step}
+                    onClick={() => setSelectedMilestone({ step: m.step, type: m.type })}
+                    className="grid w-full grid-cols-12 px-4 py-3 text-left transition-colors hover:bg-black/[0.03] dark:hover:bg-white/[0.06]"
+                  >
                     <div className="col-span-8 sm:col-span-9 text-sm text-black/80 dark:text-white/80">
                       {m.step}
                     </div>
@@ -350,10 +363,14 @@ export default function Home() {
                       {m.points}{" "}
                       <span className="text-[color:var(--celo-muted)]">{m.unit}</span>
                     </div>
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>
+
+            <p className="mt-4 text-center text-sm text-black/60 dark:text-white/60">
+              Click on any milestone to submit your progress
+            </p>
           </Container>
         </Section>
 
@@ -472,6 +489,12 @@ export default function Home() {
           </div>
         </Container>
       </footer>
+
+      <MilestoneModal
+        isOpen={selectedMilestone !== null}
+        onClose={() => setSelectedMilestone(null)}
+        milestone={selectedMilestone || { step: "", type: "registration" }}
+      />
     </div>
   );
 }

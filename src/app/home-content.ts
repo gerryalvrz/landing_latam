@@ -44,13 +44,21 @@ export const TRACKS = [
   { title: "Self", description: "Build with Self (identity/attestations—define your angle)." },
 ] as const;
 
+export type MilestoneType =
+  | "registration"
+  | "testnet"
+  | "karma-gap"
+  | "mainnet"
+  | "farcaster"
+  | "final-submission";
+
 export const MILESTONES = [
-  { step: "Registration", points: 1, unit: "Celo Mainnet" },
-  { step: "Build your app on Testnet", points: 2, unit: "Celo Mainnet" },
-  { step: "Create a Karma Gap Project", points: 2, unit: "Celo Mainnet" },
-  { step: "Build your app on Mainnet", points: 2, unit: "Celo Mainnet" },
-  { step: "Integrate your mini app on Farcaster (optional)", points: 1, unit: "Celo Mainnet" },
-  { step: "Final submission for the project", points: 2, unit: "Celo Mainnet" },
+  { step: "Registration", points: 1, unit: "Celo Mainnet", type: "registration" as MilestoneType },
+  { step: "Build your app on Testnet", points: 2, unit: "Celo Mainnet", type: "testnet" as MilestoneType },
+  { step: "Create a Karma Gap Project", points: 2, unit: "Celo Mainnet", type: "karma-gap" as MilestoneType },
+  { step: "Build your app on Mainnet", points: 2, unit: "Celo Mainnet", type: "mainnet" as MilestoneType },
+  { step: "Integrate your mini app on Farcaster (optional)", points: 1, unit: "Celo Mainnet", type: "farcaster" as MilestoneType },
+  { step: "Final submission for the project", points: 2, unit: "Celo Mainnet", type: "final-submission" as MilestoneType },
 ] as const;
 
 export type HighlightIconKey = "rocket" | "globe" | "star" | "bolt";
