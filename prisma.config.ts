@@ -4,6 +4,11 @@
 import "dotenv/config";
 import { defineConfig, env } from "prisma/config";
 
+// Set fallback for build phase when DATABASE_URL might not be available
+if (!process.env.DATABASE_URL) {
+  process.env.DATABASE_URL = "postgresql://placeholder:placeholder@localhost:5432/placeholder";
+}
+
 export default defineConfig({
   schema: "prisma/schema.prisma",
   migrations: {
