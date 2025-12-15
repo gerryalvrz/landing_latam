@@ -23,7 +23,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
   }
 
-  const cookieValue = createAdminSessionCookieValue();
+  const cookieValue = await createAdminSessionCookieValue();
   if (!cookieValue) {
     return NextResponse.json(
       { error: "Admin auth not configured (missing ADMIN_SESSION_SECRET)" },

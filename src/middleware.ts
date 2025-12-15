@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 
 import { getAdminCookieName, isValidAdminSessionCookieValue } from "@/lib/admin-auth";
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
   // Protect:
@@ -30,7 +30,7 @@ export function middleware(request: NextRequest) {
   if (isAdminLoginPage) return NextResponse.next();
 
   const cookieValue = request.cookies.get(getAdminCookieName())?.value;
-  const ok = isValidAdminSessionCookieValue(cookieValue);
+  const ok = await isValidAdminSessionCookieValue(cookieValue);
   if (!ok) {
     // For the admin page, redirect to a real login screen.
     if (isAdminPage) {
