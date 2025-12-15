@@ -4,7 +4,7 @@ export const INFO = {
   name: "Latam Buildathon",
   tagline: "Build in public with LATAM’s fastest builders.",
   subtag:
-    "A high-energy buildathon for founders, hackers, and designers across Latin America. Ship something real in days—not weeks.",
+    "A high-energy buildathon for founders, hackers, and designers across Latin America. Ship something real in days and launch faster.",
   applyUrl: "#apply",
   discordUrl: "http://chat.celo.org/",
   rulesUrl: "#rules",

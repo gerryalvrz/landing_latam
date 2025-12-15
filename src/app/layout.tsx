@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Latam Buildathon",
   description:
-    "A high-energy buildathon for founders, hackers, and designers across Latin America. Ship something real in days—not weeks.",
+    "A high-energy buildathon for founders, hackers, and designers across Latin America. Ship something real in days and launch faster.",
   applicationName: "Latam Buildathon",
   keywords: [
     "LATAM",
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Latam Buildathon",
     description:
-      "Build in public with LATAM’s fastest builders. Ship something real in days—not weeks.",
+      "Build in public with LATAM’s fastest builders. Ship something real in days and launch faster.",
     type: "website",
   },
 };
