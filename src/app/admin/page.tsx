@@ -1,4 +1,5 @@
 import Link from "next/link";
+import LogoutButton from "../../components/admin/LogoutButton";
 
 import { prisma } from "@/lib/prisma";
 import { Container } from "@/components/section";
@@ -103,12 +104,15 @@ export default async function AdminPage() {
       <header className="border-b border-black/5 bg-background dark:border-white/10">
         <Container className="flex h-16 items-center justify-between">
           <h1 className="text-lg font-semibold">Admin Dashboard</h1>
-          <Link
-            href="/"
-            className="text-sm text-black/70 hover:text-foreground dark:text-white/70"
-          >
-            ← Back to home
-          </Link>
+          <div className="flex items-center gap-3">
+            <LogoutButton />
+            <Link
+              href="/"
+              className="text-sm text-black/70 hover:text-foreground dark:text-white/70"
+            >
+              ← Back to home
+            </Link>
+          </div>
         </Container>
       </header>
 

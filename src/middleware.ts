@@ -1,62 +1,57 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+import { getAdminCookieName, isValidAdminSessionCookieValue } from "@/lib/admin-auth";
+
 export function middleware(request: NextRequest) {
-  // Only protect /admin routes
-  if (!request.nextUrl.pathname.startsWith("/admin")) {
+  const pathname = request.nextUrl.pathname;
+
+  // Protect:
+  // - /admin (dashboard)
+  // - destructive admin APIs (DELETE requests)
+  const isAdminPage = pathname.startsWith("/admin");
+  const isAdminLoginPage = pathname === "/admin/login";
+  const isAdminDeleteApi =
+    request.method === "DELETE" &&
+    (pathname === "/api/teams" ||
+      pathname === "/api/projects" ||
+      pathname === "/api/milestones");
+
+  // (Optional) protect registrations listing endpoint if you use it elsewhere
+  const isAdminReadApi =
+    pathname === "/api/buildathon/registrations" ||
+    pathname === "/api/buildathon/registrations/";
+
+  if (!isAdminPage && !isAdminDeleteApi && !isAdminReadApi) {
     return NextResponse.next();
   }
 
-  const validUser = process.env.ADMIN_USERNAME;
-  const validPassword = process.env.ADMIN_PASSWORD;
+  // Allow reaching the login page without a session.
+  if (isAdminLoginPage) return NextResponse.next();
 
-  // Safer default: if not configured, keep admin closed.
-  if (!validUser || !validPassword) {
-    return new NextResponse("Admin auth not configured", {
-      status: 401,
-      headers: {
-        "WWW-Authenticate": 'Basic realm="Admin"',
-      },
-    });
-  }
-
-  const authHeader = request.headers.get("authorization") || "";
-  const [scheme, encoded] = authHeader.split(" ");
-
-  if (scheme !== "Basic" || !encoded) {
-    return new NextResponse("Authorization required", {
-      status: 401,
-      headers: {
-        "WWW-Authenticate": 'Basic realm="Admin"',
-      },
-    });
-  }
-
-  let user = "";
-  let pwd = "";
-  try {
-    [user, pwd] = atob(encoded).split(":");
-  } catch {
-    return new NextResponse("Invalid authorization", {
-      status: 401,
-      headers: {
-        "WWW-Authenticate": 'Basic realm="Admin"',
-      },
-    });
-  }
-
-  if (user !== validUser || pwd !== validPassword) {
-    return new NextResponse("Invalid credentials", {
-      status: 401,
-      headers: {
-        "WWW-Authenticate": 'Basic realm="Admin"',
-      },
-    });
+  const cookieValue = request.cookies.get(getAdminCookieName())?.value;
+  const ok = isValidAdminSessionCookieValue(cookieValue);
+  if (!ok) {
+    // For the admin page, redirect to a real login screen.
+    if (isAdminPage) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/admin/login";
+      url.searchParams.set("next", pathname);
+      return NextResponse.redirect(url);
+    }
+    // For APIs, return 401.
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: "/admin/:path*",
+  matcher: [
+    "/admin/:path*",
+    "/api/teams",
+    "/api/projects",
+    "/api/milestones",
+    "/api/buildathon/registrations",
+  ],
 };
