@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Cross2Icon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,15 @@ interface MilestoneSubmission {
   slidesLink?: string;
   pitchDeckLink?: string;
 }
+
+type SubmissionApiItem = {
+  milestoneType: string;
+  contractAddress?: string | null;
+  karmaGapLink?: string | null;
+  farcasterLink?: string | null;
+  slidesLink?: string | null;
+  pitchDeckLink?: string | null;
+};
 
 interface MilestoneModalProps {
   isOpen: boolean;
@@ -51,19 +60,7 @@ export function MilestoneModal({
     pitchDeckLink: "",
   });
 
-  useEffect(() => {
-    if (isOpen && milestone.type !== "registration") {
-      fetchProjects();
-    }
-  }, [isOpen, registrationId, milestone.type]);
-
-  useEffect(() => {
-    if (selectedProject) {
-      fetchMilestoneData();
-    }
-  }, [selectedProject]);
-
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
     setIsLoading(true);
     setError("");
     try {
@@ -81,7 +78,7 @@ export function MilestoneModal({
         }
         throw new Error(`Failed to fetch projects: ${response.status}${details}`);
       }
-      const data = await response.json();
+      const data = (await response.json()) as { projects?: Project[] };
       setProjects(data.projects || []);
     } catch (err) {
       setError("Failed to load projects. Please try again.");
@@ -89,16 +86,16 @@ export function MilestoneModal({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [registrationId]);
 
-  const fetchMilestoneData = async () => {
+  const fetchMilestoneData = useCallback(async (projectId: string) => {
     try {
-      const response = await fetch(`/api/milestones?projectId=${selectedProject}`);
+      const response = await fetch(`/api/milestones?projectId=${projectId}`);
       if (!response.ok) throw new Error("Failed to fetch milestone data");
-      const data = await response.json();
+      const data = (await response.json()) as { submissions?: SubmissionApiItem[] };
 
       const submissionMap: Record<string, MilestoneSubmission> = {};
-      data.submissions?.forEach((sub: any) => {
+      data.submissions?.forEach((sub) => {
         submissionMap[sub.milestoneType] = {
           contractAddress: sub.contractAddress || "",
           karmaGapLink: sub.karmaGapLink || "",
@@ -112,7 +109,19 @@ export function MilestoneModal({
     } catch (err) {
       console.error("Failed to fetch milestone data:", err);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (isOpen && milestone.type !== "registration") {
+      fetchProjects();
+    }
+  }, [isOpen, milestone.type, fetchProjects]);
+
+  useEffect(() => {
+    if (selectedProject) {
+      fetchMilestoneData(selectedProject);
+    }
+  }, [selectedProject, fetchMilestoneData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
