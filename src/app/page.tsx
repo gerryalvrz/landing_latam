@@ -150,6 +150,41 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedMilestone]);
 
+  function getUnlockInfo(type: MilestoneType): { unlocked: boolean; reason?: string } {
+    if (!milestoneProjectId) return { unlocked: true };
+
+    const has = (t: MilestoneType) => completedMilestones.has(t);
+
+    switch (type) {
+      case "registration":
+        return { unlocked: true };
+      case "testnet":
+        return has("registration")
+          ? { unlocked: true }
+          : { unlocked: false, reason: 'Complete "Registration" first.' };
+      case "karma-gap":
+        return has("testnet")
+          ? { unlocked: true }
+          : { unlocked: false, reason: 'Complete "Testnet" first.' };
+      case "mainnet":
+        return has("karma-gap")
+          ? { unlocked: true }
+          : { unlocked: false, reason: 'Complete "Karma Gap" first.' };
+      case "farcaster":
+        // Optional milestone, but still only after Mainnet.
+        return has("mainnet")
+          ? { unlocked: true }
+          : { unlocked: false, reason: 'Complete "Mainnet" first.' };
+      case "final-submission":
+        // Final depends on Mainnet (Farcaster is optional).
+        return has("mainnet")
+          ? { unlocked: true }
+          : { unlocked: false, reason: 'Complete "Mainnet" first.' };
+      default:
+        return { unlocked: true };
+    }
+  }
+
   return (
     <div className="min-h-dvh bg-background text-foreground">
       <div className="pointer-events-none fixed inset-0 -z-10">
@@ -423,7 +458,7 @@ export default function Home() {
                   onChange={(e) => setMilestoneTeamId(e.target.value)}
                   className="w-full rounded-md border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/20 dark:bg-black"
                 >
-                  <option value="">Select a team (optional)</option>
+                  <option value="">Select a team</option>
                   {milestoneTeams.map((t) => (
                     <option key={t.id} value={t.id}>
                       {t.teamName}
@@ -443,7 +478,7 @@ export default function Home() {
                   disabled={!milestoneTeamId}
                 >
                   <option value="">
-                    {milestoneTeamId ? "Select a project (optional)" : "Select a team first"}
+                    {milestoneTeamId ? "Select a project" : "Select a team first"}
                   </option>
                   {milestoneProjects.map((p) => (
                     <option key={p.id} value={p.id}>
@@ -467,11 +502,25 @@ export default function Home() {
               </div>
               <div className="divide-y divide-border dark:divide-[color:var(--celo-border)]">
                 {MILESTONES.map((m) => (
-                  <button
-                    key={m.step}
-                    onClick={() => setSelectedMilestone({ step: m.step, type: m.type })}
-                    className="grid w-full grid-cols-12 px-4 py-3 text-left transition-colors hover:bg-black/[0.03] dark:hover:bg-white/[0.06]"
-                  >
+                  (() => {
+                    const info = getUnlockInfo(m.type);
+                    const locked = milestoneProjectId ? !info.unlocked : false;
+                    return (
+                      <button
+                        key={m.step}
+                        onClick={() => {
+                          if (locked) return;
+                          setSelectedMilestone({ step: m.step, type: m.type });
+                        }}
+                        title={locked && info.reason ? info.reason : undefined}
+                        className={cn(
+                          "grid w-full grid-cols-12 px-4 py-3 text-left transition-colors",
+                          locked
+                            ? "cursor-not-allowed opacity-55"
+                            : "hover:bg-black/[0.03] dark:hover:bg-white/[0.06]",
+                        )}
+                        aria-disabled={locked}
+                      >
                     <div className="col-span-8 sm:col-span-9 text-sm text-black/80 dark:text-white/80">
                       <div className="flex items-center gap-2">
                         {milestoneProjectId ? (
@@ -486,13 +535,20 @@ export default function Home() {
                         <span className={milestoneStatusLoading ? "opacity-80" : undefined}>
                           {m.step}
                         </span>
+                        {locked ? (
+                          <span className="ml-1 text-xs text-black/50 dark:text-white/50">
+                            (locked)
+                          </span>
+                        ) : null}
                       </div>
                     </div>
                     <div className="col-span-4 sm:col-span-3 text-right text-sm font-medium">
                       {m.points}{" "}
                       <span className="text-[color:var(--celo-muted)]">{m.unit}</span>
                     </div>
-                  </button>
+                      </button>
+                    );
+                  })()
                 ))}
               </div>
             </div>
@@ -500,7 +556,7 @@ export default function Home() {
             <p className="mt-4 text-center text-sm text-black/60 dark:text-white/60">
               {milestoneProjectId
                 ? "Click on any milestone to submit your progress"
-                : "Select a team + project to see completed milestones (optional). Click any milestone to submit."}
+                : "Select a team + project to see completed milestones. Click any milestone to submit."}
             </p>
           </Container>
         </Section>

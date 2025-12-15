@@ -63,13 +63,139 @@ export function MilestoneModal({
     slidesLink: "",
     pitchDeckLink: "",
   });
+  const [hasUserEdited, setHasUserEdited] = useState(false);
 
   // Registration milestone state
   const [teams, setTeams] = useState<Team[]>([]);
   const [selectedTeam, setSelectedTeam] = useState("");
+  const [selectedTeamHasProject, setSelectedTeamHasProject] = useState(false);
+  const [selectedTeamProjectName, setSelectedTeamProjectName] = useState<string | null>(null);
+  const [selectedTeamProjectId, setSelectedTeamProjectId] = useState<string | null>(null);
+  const [selectedTeamProjectGithubRepo, setSelectedTeamProjectGithubRepo] = useState<string | null>(null);
   const [projectName, setProjectName] = useState("");
   const [githubRepo, setGithubRepo] = useState("");
   const [isCreatingProject, setIsCreatingProject] = useState(false);
+
+  type PrismaMilestoneKey =
+    | "REGISTRATION"
+    | "TESTNET"
+    | "KARMA_GAP"
+    | "MAINNET"
+    | "FARCASTER"
+    | "FINAL_SUBMISSION";
+
+  const milestonePrereqByType: Record<MilestoneType, PrismaMilestoneKey | null> = {
+    registration: null,
+    testnet: "REGISTRATION",
+    "karma-gap": "TESTNET",
+    mainnet: "KARMA_GAP",
+    farcaster: "MAINNET",
+    "final-submission": "MAINNET",
+  };
+
+  const milestoneLabelByKey: Record<PrismaMilestoneKey, string> = {
+    REGISTRATION: "Registration",
+    TESTNET: "Testnet",
+    KARMA_GAP: "Karma Gap",
+    MAINNET: "Mainnet",
+    FARCASTER: "Farcaster",
+    FINAL_SUBMISSION: "Final submission",
+  };
+
+  const prismaKeyByMilestoneType: Record<MilestoneType, PrismaMilestoneKey> = {
+    registration: "REGISTRATION",
+    testnet: "TESTNET",
+    "karma-gap": "KARMA_GAP",
+    mainnet: "MAINNET",
+    farcaster: "FARCASTER",
+    "final-submission": "FINAL_SUBMISSION",
+  };
+
+  const activePrismaKey = prismaKeyByMilestoneType[milestone.type];
+  const activeSubmission = projectSubmissions[activePrismaKey];
+  const hasActiveSubmission =
+    milestone.type !== "registration" &&
+    Boolean(selectedProject) &&
+    Boolean(activeSubmission) &&
+    Object.values(activeSubmission).some((v) => Boolean(v));
+
+  const prereqKey = milestonePrereqByType[milestone.type];
+  const isLocked =
+    milestone.type !== "registration" &&
+    Boolean(selectedProject) &&
+    Boolean(prereqKey) &&
+    !((prereqKey as PrismaMilestoneKey) in projectSubmissions);
+
+  const setField = (key: keyof typeof formData, value: string) => {
+    setHasUserEdited(true);
+    setFormData((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const renderExistingSubmissionNotice = () => {
+    if (!selectedProject || milestone.type === "registration") return null;
+    if (isLocked) return null;
+    if (!hasActiveSubmission) return null;
+
+    const s = activeSubmission || {};
+    const showField = (label: string, value?: string) => {
+      if (!value) return null;
+      const isUrl = /^https?:\/\//i.test(value);
+      return (
+        <div className="flex flex-col gap-1">
+          <div className="text-[11px] font-semibold text-black/60 dark:text-white/60">
+            {label}
+          </div>
+          {isUrl ? (
+            <a
+              href={value}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="truncate text-xs text-blue-600 hover:underline dark:text-blue-400"
+            >
+              {value}
+            </a>
+          ) : (
+            <div className="break-all rounded-md border border-black/10 bg-black/[0.02] px-2 py-1 font-mono text-[11px] text-black/80 dark:border-white/10 dark:bg-white/[0.03] dark:text-white/80">
+              {value}
+            </div>
+          )}
+        </div>
+      );
+    };
+
+    const fields: Array<React.ReactNode> = [];
+    if (milestone.type === "testnet" || milestone.type === "mainnet") {
+      fields.push(showField("Contract address", s.contractAddress));
+    }
+    if (milestone.type === "karma-gap") {
+      fields.push(showField("Karma Gap link", s.karmaGapLink));
+    }
+    if (milestone.type === "farcaster") {
+      fields.push(showField("Farcaster link", s.farcasterLink));
+    }
+    if (milestone.type === "final-submission") {
+      fields.push(showField("Slides link", s.slidesLink));
+      fields.push(showField("Pitch deck link", s.pitchDeckLink));
+    }
+
+    const visibleFields = fields.filter(Boolean);
+
+    return (
+      <div className="rounded-lg border border-black/10 bg-black/[0.02] p-3 text-sm text-black/70 dark:border-white/10 dark:bg-white/[0.03] dark:text-white/70">
+        <div className="text-xs font-semibold text-black/70 dark:text-white/70">
+          Existing submission found
+        </div>
+        <p className="mt-1 text-xs text-black/60 dark:text-white/60">
+          The fields below are pre-filled with the saved values. You can update and submit again.
+        </p>
+        {visibleFields.length > 0 ? (
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            {visibleFields}
+          </div>
+        ) : null}
+      </div>
+    );
+  };
 
   const fetchTeams = useCallback(async () => {
     setIsLoading(true);
@@ -149,8 +275,51 @@ export function MilestoneModal({
     }
   }, [isOpen, fetchTeams]);
 
+  // For the registration milestone: if a team already has a project, block new project creation.
+  useEffect(() => {
+    if (!isOpen || milestone.type !== "registration") return;
+    setSelectedTeamHasProject(false);
+    setSelectedTeamProjectName(null);
+    setSelectedTeamProjectId(null);
+    setSelectedTeamProjectGithubRepo(null);
+    if (!selectedTeam) return;
+
+    (async () => {
+      try {
+        const res = await fetch(`/api/projects?teamId=${encodeURIComponent(selectedTeam)}`, {
+          cache: "no-store",
+        });
+        const json = (await res.json()) as {
+          projects?: Array<{ id: string; projectName?: string | null; githubRepo?: string | null }>;
+        };
+        const first = json.projects?.[0] ?? null;
+        const firstName = first?.projectName ?? null;
+        const firstId = first?.id ?? null;
+        const firstRepo = first?.githubRepo ?? null;
+        const has = Array.isArray(json.projects) && json.projects.length > 0;
+        setSelectedTeamHasProject(has);
+        setSelectedTeamProjectName(firstName);
+        setSelectedTeamProjectId(firstId);
+        setSelectedTeamProjectGithubRepo(firstRepo);
+        if (has) {
+          // Pre-fill edit fields with current values
+          setProjectName(firstName || "");
+          setGithubRepo(firstRepo || "");
+        }
+      } catch (err) {
+        console.error("Failed to check team projects:", err);
+        // Fail open (do not block) if the check fails.
+        setSelectedTeamHasProject(false);
+        setSelectedTeamProjectName(null);
+        setSelectedTeamProjectId(null);
+        setSelectedTeamProjectGithubRepo(null);
+      }
+    })();
+  }, [isOpen, milestone.type, selectedTeam]);
+
   useEffect(() => {
     if (selectedProject) {
+      setHasUserEdited(false);
       fetchMilestoneData(selectedProject);
     }
   }, [selectedProject, fetchMilestoneData]);
@@ -158,9 +327,34 @@ export function MilestoneModal({
   useEffect(() => {
     if (selectedTeam && milestone.type !== "registration") {
       setSelectedProject("");
+      setProjectSubmissions({});
+      setHasUserEdited(false);
       fetchProjects(selectedTeam);
     }
   }, [selectedTeam, milestone.type, fetchProjects]);
+
+  useEffect(() => {
+    // Reset local form state when switching milestone types
+    setHasUserEdited(false);
+    setError("");
+  }, [milestone.type]);
+
+  // Prefill current milestone data (if already submitted) and keep inputs editable.
+  // Avoid overwriting while the user is typing.
+  useEffect(() => {
+    if (!selectedProject) return;
+    if (milestone.type === "registration") return;
+    if (hasUserEdited) return;
+
+    const sub = projectSubmissions[activePrismaKey];
+    setFormData({
+      contractAddress: sub?.contractAddress || "",
+      karmaGapLink: sub?.karmaGapLink || "",
+      farcasterLink: sub?.farcasterLink || "",
+      slidesLink: sub?.slidesLink || "",
+      pitchDeckLink: sub?.pitchDeckLink || "",
+    });
+  }, [activePrismaKey, hasUserEdited, milestone.type, projectSubmissions, selectedProject]);
 
   const renderTeamSelector = () => (
     <div>
@@ -237,6 +431,10 @@ export function MilestoneModal({
     setError("");
 
     try {
+      if (selectedTeamHasProject) {
+        throw new Error("This team already has a project. Update it instead.");
+      }
+
       // Create the project
       const projectResponse = await fetch("/api/projects", {
         method: "POST",
@@ -282,12 +480,60 @@ export function MilestoneModal({
     }
   };
 
+  const handleUpdateRegistrationProject = async () => {
+    setIsCreatingProject(true);
+    setError("");
+    try {
+      if (!selectedTeamProjectId) throw new Error("Could not determine project to update.");
+      if (!projectName.trim()) throw new Error("Project name is required.");
+      if (!githubRepo.trim()) throw new Error("GitHub repository is required.");
+
+      const res = await fetch("/api/projects", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          projectId: selectedTeamProjectId,
+          projectName,
+          githubRepo,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = (await res.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(data?.error || "Failed to update project");
+      }
+
+      // Ensure REGISTRATION milestone exists (idempotent upsert).
+      await fetch("/api/milestones", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          projectId: selectedTeamProjectId,
+          milestoneType: "registration",
+        }),
+      });
+
+      setSelectedTeamProjectName(projectName.trim());
+      setSelectedTeamProjectGithubRepo(githubRepo.trim());
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update project. Please try again.");
+    } finally {
+      setIsCreatingProject(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError("");
 
     try {
+      if (isLocked && prereqKey) {
+        throw new Error(
+          `Locked: complete "${milestoneLabelByKey[prereqKey]}" before submitting "${milestone.step}".`,
+        );
+      }
+
       const response = await fetch("/api/milestones", {
         method: "POST",
         headers: {
@@ -313,6 +559,7 @@ export function MilestoneModal({
         slidesLink: "",
         pitchDeckLink: "",
       });
+      setHasUserEdited(false);
       setSelectedProject("");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to submit. Please try again.");
@@ -370,6 +617,34 @@ export function MilestoneModal({
 
                   {selectedTeam && (
                     <>
+                      {selectedTeamHasProject ? (
+                        <div className="rounded-lg border border-black/10 bg-black/[0.02] p-3 text-sm text-black/70 dark:border-white/10 dark:bg-white/[0.03] dark:text-white/70">
+                          <div className="flex items-center justify-between gap-3">
+                            <div>
+                              <div className="text-xs font-semibold text-black/70 dark:text-white/70">
+                                Existing project
+                              </div>
+                              <div className="mt-1 text-sm font-semibold">
+                                {selectedTeamProjectName || "Untitled"}
+                              </div>
+                              {selectedTeamProjectGithubRepo ? (
+                                <a
+                                  href={selectedTeamProjectGithubRepo}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="mt-1 block truncate text-xs text-blue-600 hover:underline dark:text-blue-400"
+                                >
+                                  {selectedTeamProjectGithubRepo}
+                                </a>
+                              ) : null}
+                            </div>
+                          </div>
+                          <p className="mt-2 text-xs text-black/60 dark:text-white/60">
+                            Only one project per team. Update the name/repo below if needed.
+                          </p>
+                        </div>
+                      ) : null}
+
                       <div>
                         <label className="block text-sm font-medium mb-2">
                           Project Name *
@@ -407,9 +682,20 @@ export function MilestoneModal({
                         <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
                       )}
 
-                      <Button type="submit" className="w-full" disabled={isCreatingProject}>
-                        {isCreatingProject ? "Creating Project..." : "Create Project & Register"}
-                      </Button>
+                      {selectedTeamHasProject ? (
+                        <Button
+                          type="button"
+                          className="w-full"
+                          disabled={isCreatingProject}
+                          onClick={handleUpdateRegistrationProject}
+                        >
+                          {isCreatingProject ? "Updating..." : "Update project"}
+                        </Button>
+                      ) : (
+                        <Button type="submit" className="w-full" disabled={isCreatingProject}>
+                          {isCreatingProject ? "Creating Project..." : "Create Project & Register"}
+                        </Button>
+                      )}
                     </>
                   )}
                 </div>
@@ -425,6 +711,12 @@ export function MilestoneModal({
               <>
                 {renderTeamSelector()}
                 {renderProjectSelector()}
+                {selectedProject && isLocked && prereqKey ? (
+                  <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-800 dark:text-amber-200">
+                    Complete <span className="font-semibold">{milestoneLabelByKey[prereqKey]}</span> first to unlock this milestone.
+                  </div>
+                ) : null}
+                {renderExistingSubmissionNotice()}
                 <div>
                   <label className="block text-sm font-medium mb-2">
                     Testnet Contract Address
@@ -432,20 +724,22 @@ export function MilestoneModal({
                   <input
                     type="text"
                     value={formData.contractAddress}
-                    onChange={(e) =>
-                      setFormData({ ...formData, contractAddress: e.target.value })
-                    }
+                    onChange={(e) => setField("contractAddress", e.target.value)}
                     placeholder="0x..."
                     className="w-full rounded-md border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/20 dark:bg-black"
                     required
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || isLocked}
                   />
                 </div>
                 {error && (
                   <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
                 )}
-                <Button type="submit" className="w-full" disabled={isSubmitting}>
-                  {isSubmitting ? "Submitting..." : "Submit Testnet Deployment"}
+                <Button type="submit" className="w-full" disabled={isSubmitting || isLocked}>
+                  {isSubmitting
+                    ? "Submitting..."
+                    : hasActiveSubmission
+                      ? "Update Testnet Deployment"
+                      : "Submit Testnet Deployment"}
                 </Button>
               </>,
             )}
@@ -459,6 +753,13 @@ export function MilestoneModal({
               <>
                 {renderTeamSelector()}
                 {renderProjectSelector()}
+                {selectedProject && isLocked && prereqKey ? (
+                  <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-800 dark:text-amber-200">
+                    Complete <span className="font-semibold">{milestoneLabelByKey[prereqKey]}</span> first to unlock this milestone.
+                  </div>
+                ) : null}
+                {renderExistingSubmissionNotice()}
+
                 <div>
                   <label className="block text-sm font-medium mb-2">
                     Karma Gap Project Link
@@ -466,20 +767,23 @@ export function MilestoneModal({
                   <input
                     type="url"
                     value={formData.karmaGapLink}
-                    onChange={(e) =>
-                      setFormData({ ...formData, karmaGapLink: e.target.value })
-                    }
-                    placeholder="https://gap.karmahq.xyz/..."
+                    onChange={(e) => setField("karmaGapLink", e.target.value)}
+                    placeholder="https://www.karmahq.xyz/project/..."
+                    pattern="https://www\.karmahq\.xyz/project/.*"
                     className="w-full rounded-md border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/20 dark:bg-black"
                     required
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || isLocked}
                   />
                 </div>
                 {error && (
                   <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
                 )}
-                <Button type="submit" className="w-full" disabled={isSubmitting}>
-                  {isSubmitting ? "Submitting..." : "Submit Karma Gap Project"}
+                <Button type="submit" className="w-full" disabled={isSubmitting || isLocked}>
+                  {isSubmitting
+                    ? "Submitting..."
+                    : hasActiveSubmission
+                      ? "Update Karma Gap Project"
+                      : "Submit Karma Gap Project"}
                 </Button>
               </>,
             )}
@@ -493,6 +797,12 @@ export function MilestoneModal({
               <>
                 {renderTeamSelector()}
                 {renderProjectSelector()}
+                {selectedProject && isLocked && prereqKey ? (
+                  <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-800 dark:text-amber-200">
+                    Complete <span className="font-semibold">{milestoneLabelByKey[prereqKey]}</span> first to unlock this milestone.
+                  </div>
+                ) : null}
+                {renderExistingSubmissionNotice()}
                 <div>
                   <label className="block text-sm font-medium mb-2">
                     Mainnet Contract Address
@@ -500,20 +810,22 @@ export function MilestoneModal({
                   <input
                     type="text"
                     value={formData.contractAddress}
-                    onChange={(e) =>
-                      setFormData({ ...formData, contractAddress: e.target.value })
-                    }
+                    onChange={(e) => setField("contractAddress", e.target.value)}
                     placeholder="0x..."
                     className="w-full rounded-md border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/20 dark:bg-black"
                     required
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || isLocked}
                   />
                 </div>
                 {error && (
                   <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
                 )}
-                <Button type="submit" className="w-full" disabled={isSubmitting}>
-                  {isSubmitting ? "Submitting..." : "Submit Mainnet Deployment"}
+                <Button type="submit" className="w-full" disabled={isSubmitting || isLocked}>
+                  {isSubmitting
+                    ? "Submitting..."
+                    : hasActiveSubmission
+                      ? "Update Mainnet Deployment"
+                      : "Submit Mainnet Deployment"}
                 </Button>
               </>,
             )}
@@ -527,6 +839,12 @@ export function MilestoneModal({
               <>
                 {renderTeamSelector()}
                 {renderProjectSelector()}
+                {selectedProject && isLocked && prereqKey ? (
+                  <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-800 dark:text-amber-200">
+                    Complete <span className="font-semibold">{milestoneLabelByKey[prereqKey]}</span> first to unlock this milestone.
+                  </div>
+                ) : null}
+                {renderExistingSubmissionNotice()}
                 <div>
                   <label className="block text-sm font-medium mb-2">
                     Farcaster Miniapp Link
@@ -534,13 +852,11 @@ export function MilestoneModal({
                   <input
                     type="url"
                     value={formData.farcasterLink}
-                    onChange={(e) =>
-                      setFormData({ ...formData, farcasterLink: e.target.value })
-                    }
+                    onChange={(e) => setField("farcasterLink", e.target.value)}
                     placeholder="https://..."
                     className="w-full rounded-md border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/20 dark:bg-black"
                     required
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || isLocked}
                   />
                 </div>
                 <p className="text-xs text-black/60 dark:text-white/60">
@@ -549,8 +865,12 @@ export function MilestoneModal({
                 {error && (
                   <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
                 )}
-                <Button type="submit" className="w-full" disabled={isSubmitting}>
-                  {isSubmitting ? "Submitting..." : "Submit Farcaster Integration"}
+                <Button type="submit" className="w-full" disabled={isSubmitting || isLocked}>
+                  {isSubmitting
+                    ? "Submitting..."
+                    : hasActiveSubmission
+                      ? "Update Farcaster Integration"
+                      : "Submit Farcaster Integration"}
                 </Button>
               </>,
             )}
@@ -564,6 +884,12 @@ export function MilestoneModal({
               <>
                 {renderTeamSelector()}
                 {renderProjectSelector()}
+                {selectedProject && isLocked && prereqKey ? (
+                  <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-800 dark:text-amber-200">
+                    Complete <span className="font-semibold">{milestoneLabelByKey[prereqKey]}</span> first to unlock this milestone.
+                  </div>
+                ) : null}
+                {renderExistingSubmissionNotice()}
 
                 {selectedProject && projectSubmissions && (
                   <div className="rounded-lg border border-black/10 bg-black/5 p-4 dark:border-white/10 dark:bg-white/5">
@@ -595,13 +921,11 @@ export function MilestoneModal({
                   <input
                     type="url"
                     value={formData.slidesLink}
-                    onChange={(e) =>
-                      setFormData({ ...formData, slidesLink: e.target.value })
-                    }
+                    onChange={(e) => setField("slidesLink", e.target.value)}
                     placeholder="https://docs.google.com/presentation/..."
                     className="w-full rounded-md border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/20 dark:bg-black"
                     required
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || isLocked}
                   />
                 </div>
 
@@ -612,21 +936,23 @@ export function MilestoneModal({
                   <input
                     type="url"
                     value={formData.pitchDeckLink}
-                    onChange={(e) =>
-                      setFormData({ ...formData, pitchDeckLink: e.target.value })
-                    }
+                    onChange={(e) => setField("pitchDeckLink", e.target.value)}
                     placeholder="https://..."
                     className="w-full rounded-md border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/20 dark:bg-black"
                     required
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || isLocked}
                   />
                 </div>
 
                 {error && (
                   <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
                 )}
-                <Button type="submit" className="w-full" disabled={isSubmitting}>
-                  {isSubmitting ? "Submitting..." : "Submit Final Project"}
+                <Button type="submit" className="w-full" disabled={isSubmitting || isLocked}>
+                  {isSubmitting
+                    ? "Submitting..."
+                    : hasActiveSubmission
+                      ? "Update Final Project"
+                      : "Submit Final Project"}
                 </Button>
               </>,
             )}

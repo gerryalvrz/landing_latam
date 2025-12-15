@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 type Props = {
   id: string;
   label: string;
-  kind: "team" | "project";
+  kind: "team" | "project" | "milestone";
 };
 
 export function AdminDeleteButton({ id, label, kind }: Props) {
@@ -19,7 +19,9 @@ export function AdminDeleteButton({ id, label, kind }: Props) {
     const confirmText =
       kind === "team"
         ? `Delete team "${label}"?\n\nThis will delete all its members, projects, and milestones.`
-        : `Delete project "${label}"?\n\nThis will delete all its milestones.`;
+        : kind === "project"
+          ? `Delete project "${label}"?\n\nThis will delete all its milestones.`
+          : `Delete milestone "${label}"?`;
 
     if (!window.confirm(confirmText)) return;
 
@@ -28,7 +30,9 @@ export function AdminDeleteButton({ id, label, kind }: Props) {
       const url =
         kind === "team"
           ? `/api/teams?teamId=${encodeURIComponent(id)}`
-          : `/api/projects?projectId=${encodeURIComponent(id)}`;
+          : kind === "project"
+            ? `/api/projects?projectId=${encodeURIComponent(id)}`
+            : `/api/milestones?milestoneId=${encodeURIComponent(id)}`;
 
       const res = await fetch(url, { method: "DELETE" });
       if (!res.ok) {
