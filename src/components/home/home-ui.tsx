@@ -20,7 +20,7 @@ export function Card({
 
 export function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <Card className="group p-4 text-center transition-all hover:shadow-md hover:shadow-black/5 dark:hover:shadow-white/5">
+    <Card className="group p-6 text-center transition-all hover:shadow-md hover:shadow-black/5 dark:hover:shadow-white/5">
       <div className="text-xs font-medium uppercase tracking-wide text-black/60 dark:text-white/60">
         {label}
       </div>

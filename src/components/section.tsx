@@ -14,7 +14,7 @@ export function Section({
   ...props
 }: React.ComponentPropsWithoutRef<"section">) {
   return (
-    <section className={cn("py-4 sm:py-6", className)} {...props} />
+    <section className={cn("py-8 sm:py-12", className)} {...props} />
   );
 }
 
@@ -36,11 +36,11 @@ export function SectionHeader({
           {eyebrow}
         </div>
       ) : null}
-      <h2 className="mt-3 text-balance text-3xl font-title font-[200] leading-[1.15] tracking-tight sm:text-4xl">
+      <h2 className="mt-4 text-balance text-3xl font-title font-[200] leading-[1.15] tracking-tight sm:text-4xl">
         {title}
       </h2>
       {description ? (
-        <p className="mt-5 text-pretty text-base leading-[1.75] text-black/70 dark:text-white/70">
+        <p className="mt-6 text-pretty text-base leading-[1.75] text-black/70 dark:text-white/70">
           {description}
         </p>
       ) : null}

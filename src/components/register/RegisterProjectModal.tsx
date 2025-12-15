@@ -106,7 +106,7 @@ export default function RegisterProjectModal({
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleSubmit} className="mt-5 space-y-4">
+          <form onSubmit={handleSubmit} className="mt-5 space-y-6">
             <Field label="Team name *">
               <input
                 type="text"
@@ -119,10 +119,10 @@ export default function RegisterProjectModal({
             </Field>
 
             <Field label="Team members *">
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {members.map((m, idx) => (
                   <div key={idx} className="rounded-lg border border-black/10 p-3 dark:border-white/15">
-                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                       <div>
                         <label className="mb-1 block text-xs font-medium text-black/70 dark:text-white/70">
                           Name *
@@ -217,7 +217,7 @@ function Field({
 }) {
   return (
     <div>
-      <label className="mb-2 block text-sm font-medium">{label}</label>
+      <label className="mb-3 block text-sm font-medium">{label}</label>
       {children}
     </div>
   );
