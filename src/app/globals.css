@@ -4,7 +4,7 @@
 
 :root {
   /* Core tokens (HSL so we can reuse with Tailwind color utilities) */
-  --background: 0 0% 100%;
+  --background: 27 66% 96%;
   --foreground: 0 0% 3.9%;
   --border: 0 0% 89.8%;
   --ring: 0 0% 3.9%;
@@ -21,6 +21,10 @@
   --celo-yellow-weak: rgba(252, 255, 82, 0.18);
   --celo-accent: #a3f7bf;
   --celo-border: rgba(252, 255, 82, 0.3);
+
+  /* Grid overlay defaults (light) */
+  --grid-border-color: rgba(0, 0, 0, 0.08);
+  --grid-hover-color: rgba(0, 0, 0, 0.14);
 }
 
 .dark {
@@ -28,6 +32,10 @@
   --foreground: 0 0% 98%;
   --border: 0 0% 14.9%;
   --ring: 0 0% 83.1%;
+
+  /* Grid overlay (dark) */
+  --grid-border-color: rgba(252, 255, 82, 0.26);
+  --grid-hover-color: rgba(252, 255, 82, 0.36);
 }
 
 /* Yellow theme (optional) */
