@@ -4,6 +4,7 @@ import LogoutButton from "../../components/admin/LogoutButton";
 import { prisma } from "@/lib/prisma";
 import { Container } from "@/components/section";
 import { AdminDeleteButton } from "@/components/admin/AdminDeleteButtons";
+import { CountryStats } from "@/components/admin/CountryStats";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -37,6 +38,7 @@ type MemberRow = {
   id: string;
   memberName: string;
   memberGithub: string | null;
+  country: string | null;
 };
 
 type TeamWithRelations = {
@@ -96,8 +98,20 @@ async function getTeams() {
   }
 }
 
+function checkLatamCriteria(members: MemberRow[]): { meetsLatam: boolean; latamCount: number; totalCount: number; percentage: number } {
+  const totalCount = members.length;
+  const latamCount = members.filter(m => m.country && m.country !== "Non Latin America Country").length;
+  const percentage = totalCount > 0 ? (latamCount / totalCount) * 100 : 0;
+  const meetsLatam = percentage > 50;
+
+  return { meetsLatam, latamCount, totalCount, percentage };
+}
+
 export default async function AdminPage() {
   const teams = await getTeams();
+
+  // Get all members for country statistics
+  const allMembers = teams.flatMap((team) => team.members);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -125,6 +139,12 @@ export default async function AdminPage() {
             </p>
           </div>
 
+          {allMembers.length > 0 && (
+            <div className="mb-6">
+              <CountryStats members={allMembers} />
+            </div>
+          )}
+
           {teams.length === 0 ? (
             <div className="rounded-lg border border-black/10 bg-white p-8 text-center dark:border-white/10 dark:bg-white/[0.03]">
               <p className="text-sm text-black/60 dark:text-white/60">
@@ -133,26 +153,43 @@ export default async function AdminPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              {teams.map((team: TeamWithRelations) => (
-                <div
-                  key={team.id}
-                  className="overflow-hidden rounded-lg border border-black/10 bg-white dark:border-white/10 dark:bg-white/[0.03]"
-                >
-                  <div className="border-b border-black/10 bg-black/[0.02] px-6 py-4 dark:border-white/10 dark:bg-white/[0.03]">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="text-lg font-semibold">{team.teamName}</h3>
-                        <p className="mt-1 text-xs text-black/60 dark:text-white/60">
-                          Registered on {new Date(team.createdAt).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          })}
-                        </p>
+              {teams.map((team: TeamWithRelations) => {
+                const latamStatus = checkLatamCriteria(team.members);
+                return (
+                  <div
+                    key={team.id}
+                    className="overflow-hidden rounded-lg border border-black/10 bg-white dark:border-white/10 dark:bg-white/[0.03]"
+                  >
+                    <div className="border-b border-black/10 bg-black/[0.02] px-6 py-4 dark:border-white/10 dark:bg-white/[0.03]">
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3">
+                            <h3 className="text-lg font-semibold">{team.teamName}</h3>
+                            <span
+                              className={[
+                                "inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium",
+                                latamStatus.meetsLatam
+                                  ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
+                                  : "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300",
+                              ].join(" ")}
+                            >
+                              {latamStatus.meetsLatam ? "✓" : "⚠"}
+                              {latamStatus.percentage.toFixed(0)}% LATAM
+                            </span>
+                          </div>
+                          <p className="mt-1 text-xs text-black/60 dark:text-white/60">
+                            Registered on {new Date(team.createdAt).toLocaleDateString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            })}
+                            {" • "}
+                            {latamStatus.latamCount} of {latamStatus.totalCount} members from LATAM
+                          </p>
+                        </div>
+                        <AdminDeleteButton id={team.id} label={team.teamName} kind="team" />
                       </div>
-                      <AdminDeleteButton id={team.id} label={team.teamName} kind="team" />
                     </div>
-                  </div>
 
                   <div className="px-6 py-4">
                     <div className="mb-4">
@@ -176,6 +213,11 @@ export default async function AdminPage() {
                               >
                                 @{member.memberGithub}
                               </a>
+                            )}
+                            {member.country && (
+                              <span className="rounded-full bg-black/5 px-2 py-0.5 text-xs text-black/70 dark:bg-white/10 dark:text-white/70">
+                                {member.country}
+                              </span>
                             )}
                           </div>
                         ))}
@@ -376,7 +418,8 @@ export default async function AdminPage() {
                     )}
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </Container>

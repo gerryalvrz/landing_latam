@@ -53,5 +53,6 @@ export const config = {
     "/api/projects",
     "/api/milestones",
     "/api/buildathon/registrations",
+    "/api/buildathon/teams/:path*",
   ],
 };

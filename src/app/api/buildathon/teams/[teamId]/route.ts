@@ -9,30 +9,26 @@ type TeamMember = {
   country?: string;
 };
 
-type RegisterPayload = {
-  teamName: string;
+type UpdatePayload = {
   members: TeamMember[];
 };
 
-export async function POST(req: Request) {
+export async function PATCH(
+  req: Request,
+  { params }: { params: Promise<{ teamId: string }> }
+) {
   try {
-    let body: RegisterPayload;
+    const { teamId } = await params;
+
+    let body: UpdatePayload;
     try {
-      body = (await req.json()) as RegisterPayload;
+      body = (await req.json()) as UpdatePayload;
     } catch (err) {
-      console.error("[POST] JSON parse error:", err);
+      console.error("[PATCH] JSON parse error:", err);
       return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
     }
 
-    const teamName = typeof body.teamName === "string" ? body.teamName.trim() : "";
     const members = Array.isArray(body.members) ? body.members : [];
-
-    if (!teamName) {
-      return NextResponse.json(
-        { error: "Team name is required" },
-        { status: 400 },
-      );
-    }
 
     if (members.length === 0) {
       return NextResponse.json(
@@ -66,32 +62,34 @@ export async function POST(req: Request) {
       );
     }
 
-    // Create team with members
-    const team = await prisma.team.create({
-      data: {
-        teamName,
-        members: {
-          create: validMembers.map((m) => ({
-            memberName: m.memberName,
-            memberGithub: m.memberGithub || null,
-            country: m.country || null,
-          })),
-        },
-      },
-      include: {
-        members: true,
-      },
+    // Update team members
+    // Delete all existing members
+    await prisma.teamMember.deleteMany({
+      where: { teamId },
     });
 
-    return NextResponse.json({ ok: true, teamId: team.id });
+    // Create new members
+    await prisma.teamMember.createMany({
+      data: validMembers.map((m) => ({
+        teamId,
+        memberName: m.memberName,
+        memberGithub: m.memberGithub || null,
+        country: m.country || null,
+      })),
+    });
+
+    const updatedTeam = await prisma.team.findUnique({
+      where: { id: teamId },
+      include: { members: true },
+    });
+
+    return NextResponse.json({ ok: true, team: updatedTeam });
   } catch (error) {
-    console.error("[POST] Database error:", error);
-    console.error("[POST] Error stack:", error instanceof Error ? error.stack : "N/A");
+    console.error("[PATCH] Database error:", error);
+    console.error("[PATCH] Error stack:", error instanceof Error ? error.stack : "N/A");
     return NextResponse.json(
-      { error: "Failed to save registration. Please try again." },
+      { error: "Failed to update team. Please try again." },
       { status: 500 },
     );
   }
 }
-
-

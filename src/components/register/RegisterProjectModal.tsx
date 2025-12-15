@@ -45,10 +45,26 @@ const LATIN_AMERICAN_COUNTRIES = [
   "Venezuela",
 ] as const;
 
+type Team = {
+  id: string;
+  teamName: string;
+  members: Array<{
+    id: string;
+    memberName: string;
+    memberGithub: string | null;
+    country: string | null;
+  }>;
+};
+
 export default function RegisterProjectModal({
   open,
   onOpenChange,
 }: RegisterProjectModalProps) {
+  // Default to create mode so the public registration flow works without any admin-only APIs.
+  const [mode, setMode] = React.useState<"select" | "create" | "edit">("create");
+  const [selectedTeamId, setSelectedTeamId] = React.useState<string>("");
+  const [teams, setTeams] = React.useState<Team[]>([]);
+  const [loadingTeams, setLoadingTeams] = React.useState(false);
   const [teamName, setTeamName] = React.useState("");
   const [members, setMembers] = React.useState<Array<{ memberName: string; memberGithub: string; country: string }>>([
     { memberName: "", memberGithub: "", country: "" },
@@ -59,6 +75,52 @@ export default function RegisterProjectModal({
 
   const canSubmit =
     teamName.trim().length > 0 && members.some((m) => m.memberName.trim().length > 0);
+
+  // Fetch teams when modal opens
+  React.useEffect(() => {
+    if (open) {
+      setLoadingTeams(true);
+      fetch("/api/buildathon/teams")
+        .then(async (res) => {
+          if (!res.ok) return null; // e.g. 401 when not an admin session
+          return (await res.json()) as { teams?: Team[] };
+        })
+        .then((data) => {
+          setTeams(data?.teams || []);
+        })
+        .catch((err) => {
+          console.error("Failed to fetch teams:", err);
+          setTeams([]);
+        })
+        .finally(() => {
+          setLoadingTeams(false);
+        });
+    }
+  }, [open]);
+
+  // Handle team selection
+  function handleTeamSelect(teamId: string) {
+    if (teamId === "new") {
+      setMode("create");
+      setSelectedTeamId("");
+      setTeamName("");
+      setMembers([{ memberName: "", memberGithub: "", country: "" }]);
+    } else {
+      const team = teams.find((t) => t.id === teamId);
+      if (team) {
+        setMode("edit");
+        setSelectedTeamId(teamId);
+        setTeamName(team.teamName);
+        setMembers(
+          team.members.map((m) => ({
+            memberName: m.memberName,
+            memberGithub: m.memberGithub || "",
+            country: m.country || "",
+          }))
+        );
+      }
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -102,14 +164,22 @@ export default function RegisterProjectModal({
         return;
       }
 
-      const res = await fetch("/api/buildathon/register", {
-        method: "POST",
+      const isEditMode = mode === "edit" && selectedTeamId;
+      const url = isEditMode
+        ? `/api/buildathon/teams/${selectedTeamId}`
+        : "/api/buildathon/register";
+      const method = isEditMode ? "PATCH" : "POST";
+
+      const res = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(isEditMode ? { members: payload.members } : payload),
       });
 
       if (res.ok) {
         setStatus("success");
+        setMode("select");
+        setSelectedTeamId("");
         setTeamName("");
         setMembers([{ memberName: "", memberGithub: "", country: "" }]);
         onOpenChange(false);
@@ -133,7 +203,7 @@ export default function RegisterProjectModal({
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-h-[90vh] max-w-md overflow-hidden">
           <DialogHeader>
             <DialogTitle>Apply / Register</DialogTitle>
             <DialogDescription>
@@ -141,22 +211,65 @@ export default function RegisterProjectModal({
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleSubmit} className="mt-5 space-y-6">
-            <Field label="Team name *">
-              <input
-                type="text"
-                required
-                value={teamName}
-                onChange={(e) => setTeamName(e.target.value)}
-                className={inputClassName}
-                placeholder="My awesome project"
-              />
-            </Field>
+          <form onSubmit={handleSubmit} className="mt-5 flex flex-col">
+            <div className="max-h-[calc(90vh-16rem)] space-y-6 overflow-y-auto pr-2">
+              {mode === "select" && (
+                <Field label="Select your team or create new">
+                  <select
+                    value={selectedTeamId}
+                    onChange={(e) => handleTeamSelect(e.target.value)}
+                    className={inputClassName}
+                    disabled={loadingTeams}
+                  >
+                    <option value="">
+                      {loadingTeams ? "Loading teams..." : "-- Select a team --"}
+                    </option>
+                    <option value="new">+ Create New Team</option>
+                    {teams.map((team) => (
+                      <option key={team.id} value={team.id}>
+                        {team.teamName} ({team.members.length} members)
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+              )}
 
-            <Field label="Team members *">
-              <div className="space-y-4">
-                {members.map((m, idx) => (
-                  <div key={idx} className="rounded-lg border border-black/10 p-3 dark:border-white/15">
+              {(mode === "create" || mode === "edit") && (
+                <>
+                  <div className="flex items-start gap-2">
+                    <div className="flex-1">
+                      <Field label="Team name *">
+                        <input
+                          type="text"
+                          required
+                          value={teamName}
+                          onChange={(e) => setTeamName(e.target.value)}
+                          className={inputClassName}
+                          placeholder="My awesome project"
+                          disabled={mode === "edit"}
+                        />
+                      </Field>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setMode("select");
+                        setSelectedTeamId("");
+                        setTeamName("");
+                        setMembers([{ memberName: "", memberGithub: "", country: "" }]);
+                      }}
+                      className="mt-8"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+
+                  <Field label="Team members *">
+                <div className="space-y-4">
+                  {members.map((m, idx) => (
+                    <div key={idx} className="rounded-lg border border-black/10 p-3 dark:border-white/15">
                     <div className="grid grid-cols-1 gap-4">
                       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div>
@@ -231,34 +344,47 @@ export default function RegisterProjectModal({
                         </Button>
                       </div>
                     ) : null}
+                    </div>
+                  ))}
+
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={() => setMembers([...members, { memberName: "", memberGithub: "", country: "" }])}
+                      disabled={status === "loading"}
+                      className="w-full"
+                    >
+                      + Add member
+                    </Button>
                   </div>
-                ))}
+                </Field>
+                </>
+              )}
+            </div>
 
+            {(mode === "create" || mode === "edit") && (
+              <div className="mt-6 space-y-4">
                 <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => setMembers([...members, { memberName: "", memberGithub: "", country: "" }])}
-                  disabled={status === "loading"}
-                  className="w-full"
+                  type="submit"
+                  disabled={status === "loading" || !canSubmit}
+                  className="w-full rounded-full"
                 >
-                  + Add member
+                  {status === "loading"
+                    ? mode === "edit"
+                      ? "Updating..."
+                      : "Registering..."
+                    : mode === "edit"
+                    ? "Update Team"
+                    : "Register"}
                 </Button>
-              </div>
-            </Field>
 
-            <Button
-              type="submit"
-              disabled={status === "loading" || !canSubmit}
-              className="w-full rounded-full"
-            >
-              {status === "loading" ? "Registering..." : "Register"}
-            </Button>
-
-            {status === "error" ? (
-              <div className="rounded-lg border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-700 dark:text-red-300">
-                {errorMessage || "Error registering. Please try again."}
+                {status === "error" ? (
+                  <div className="rounded-lg border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-700 dark:text-red-300">
+                    {errorMessage || "Error registering. Please try again."}
+                  </div>
+                ) : null}
               </div>
-            ) : null}
+            )}
           </form>
         </DialogContent>
       </Dialog>
