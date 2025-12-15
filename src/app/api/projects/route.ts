@@ -2,29 +2,31 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const registrationId = searchParams.get("registrationId");
-
-    if (!registrationId) {
-      return NextResponse.json(
-        { error: "Registration ID is required" },
-        { status: 400 },
-      );
-    }
+    const registrationIdRaw = searchParams.get("registrationId");
+    // Treat missing/placeholder values as "no filter" to keep the UI resilient.
+    const registrationId =
+      registrationIdRaw &&
+      registrationIdRaw !== "undefined" &&
+      registrationIdRaw !== "null"
+        ? registrationIdRaw
+        : null;
 
     const projects = await prisma.project.findMany({
-      where: {
-        registrationId,
-      },
+      where: registrationId ? { registrationId } : undefined,
       orderBy: {
         createdAt: "desc",
       },
     });
 
-    return NextResponse.json({ projects });
+    return NextResponse.json(
+      { projects },
+      { headers: { "Cache-Control": "no-store" } },
+    );
   } catch (error) {
     console.error("Database error:", error);
     return NextResponse.json(

@@ -52,7 +52,7 @@ export function MilestoneModal({
   });
 
   useEffect(() => {
-    if (isOpen && registrationId && milestone.type !== "registration") {
+    if (isOpen && milestone.type !== "registration") {
       fetchProjects();
     }
   }, [isOpen, registrationId, milestone.type]);
@@ -67,8 +67,20 @@ export function MilestoneModal({
     setIsLoading(true);
     setError("");
     try {
-      const response = await fetch(`/api/projects?registrationId=${registrationId}`);
-      if (!response.ok) throw new Error("Failed to fetch projects");
+      const url = registrationId
+        ? `/api/projects?registrationId=${encodeURIComponent(registrationId)}`
+        : "/api/projects";
+      const response = await fetch(url, { cache: "no-store" });
+      if (!response.ok) {
+        let details = "";
+        try {
+          const json = (await response.json()) as { error?: string };
+          if (json?.error) details = ` (${json.error})`;
+        } catch {
+          // ignore
+        }
+        throw new Error(`Failed to fetch projects: ${response.status}${details}`);
+      }
       const data = await response.json();
       setProjects(data.projects || []);
     } catch (err) {
