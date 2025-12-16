@@ -33,18 +33,23 @@ export async function middleware(request: NextRequest) {
   // Allow reaching the login page without a session.
   if (isAdminLoginPage) return NextResponse.next();
 
-  const cookieValue = request.cookies.get(getAdminCookieName())?.value;
-  const ok = await isValidAdminSessionCookieValue(cookieValue);
-  if (!ok) {
-    // For the admin page, redirect to a real login screen.
+  // Check for valid admin session cookie
+  const cookieName = getAdminCookieName();
+  const sessionCookie = request.cookies.get(cookieName)?.value;
+  const isValidSession = await isValidAdminSessionCookieValue(sessionCookie);
+
+  if (!isValidSession) {
+    // Redirect to login page for admin pages
     if (isAdminPage) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/admin/login";
-      url.searchParams.set("next", pathname);
-      return NextResponse.redirect(url);
+      const loginUrl = new URL("/admin/login", request.url);
+      loginUrl.searchParams.set("redirect", pathname);
+      return NextResponse.redirect(loginUrl);
     }
-    // For APIs, return 401.
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    // Return 401 for API routes
+    return new NextResponse("Unauthorized", {
+      status: 401,
+    });
   }
 
   return NextResponse.next();
@@ -57,6 +62,5 @@ export const config = {
     "/api/projects",
     "/api/milestones",
     "/api/buildathon/registrations",
-    "/api/buildathon/teams/:path*",
   ],
 };

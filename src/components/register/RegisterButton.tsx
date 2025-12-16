@@ -12,12 +12,14 @@ export default function RegisterButton({
   variant = "secondary",
   size = "md",
   withSquares = false,
+  autoOpen = false,
   className,
 }: {
   label?: string;
   variant?: React.ComponentProps<typeof Button>["variant"];
   size?: React.ComponentProps<typeof Button>["size"];
   withSquares?: boolean;
+  autoOpen?: boolean;
   className?: string;
 }) {
   const [open, setOpen] = React.useState(false);
@@ -25,7 +27,12 @@ export default function RegisterButton({
 
   React.useEffect(() => {
     setMounted(true);
-  }, []);
+    if (autoOpen) {
+      // Small delay to ensure proper rendering
+      const timer = setTimeout(() => setOpen(true), 100);
+      return () => clearTimeout(timer);
+    }
+  }, [autoOpen]);
 
   return (
     <>

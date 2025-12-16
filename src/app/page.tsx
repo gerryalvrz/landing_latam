@@ -117,6 +117,7 @@ export default function Home() {
                       label="Pre-register now"
                       variant="primary"
                       withSquares
+                      autoOpen
                       className="shadow-lg shadow-[var(--celo-yellow)]/20"
                     />
                     <SquaresButtonLink variant="secondary" href="#schedule">
