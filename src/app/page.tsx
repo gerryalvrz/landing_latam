@@ -30,6 +30,7 @@ import {
   HIGHLIGHTS,
   INFO,
   NAV_LINKS,
+  RESOURCES,
   TIMELINE,
   TRACKS,
 } from "@/app/home-content";
@@ -328,14 +329,14 @@ export default function Home() {
           <Container>
             <SectionHeader
               title="Submit your project"
-              description="Once you've pre-registered and built your project, submit it here with your Karma Gap link."
+              description="Once you&apos;ve pre-registered and built your project, submit it here with your Karma Gap link."
             />
 
             <div className="mt-10 grid gap-6 md:grid-cols-2">
               <Card className="p-8">
                 <div className="text-base font-semibold">Pre-registration (Dec 17 - Jan 16)</div>
                 <p className="mt-3 text-sm leading-relaxed text-black/70 dark:text-white/70">
-                  Register your team using the form on this website. You'll provide your team name,
+                  Register your team using the form on this website. You&apos;ll provide your team name,
                   member details, and an EVM wallet address to receive 3 CELO for deployments.
                 </p>
                 <div className="mt-6">
@@ -368,7 +369,7 @@ export default function Home() {
             <Card className="mt-6 border-[color:var(--celo-border)] bg-background/70 p-6">
               <div className="text-sm font-semibold text-foreground mb-4">Submission Requirements</div>
               <p className="text-sm text-black/70 dark:text-white/70 mb-4">
-                You'll submit your Karma Gap project link via the form. Your Karma Gap profile must include:
+                You&apos;ll submit your Karma Gap project link via the form. Your Karma Gap profile must include:
               </p>
               <div className="space-y-3 text-sm">
                 <ChecklistItem>GitHub repository link (repo should be empty before Jan 19, 2026)</ChecklistItem>
@@ -474,6 +475,61 @@ export default function Home() {
                 Join Discord
               </SquaresButtonLink>
               <RegisterButton label="Register" variant="secondary" withSquares />
+            </div>
+          </Container>
+        </Section>
+
+        <Section id="resources" className="scroll-mt-20">
+          <Container>
+            <SectionHeader
+              title="Resources"
+              description="Curated learning resources for builders in LATAM. Filter by language."
+            />
+
+            <div className="mt-10 grid gap-6 lg:grid-cols-3">
+              <div className="rounded-2xl border border-black/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-white/[0.03]">
+                <div className="text-xs font-semibold uppercase tracking-wider text-black/60 dark:text-white/60">
+                  Español
+                </div>
+                <div className="mt-4 space-y-5">
+                  {RESOURCES.spanish.map((group) => (
+                    <div key={group.title}>
+                      <div className="text-sm font-semibold">{group.title}</div>
+                      <div className="mt-2 space-y-2 text-sm">
+                        {group.links.map((l) => (
+                          <a
+                            key={l.url}
+                            href={l.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block text-black/70 transition-colors hover:text-foreground hover:underline dark:text-white/70"
+                          >
+                            {l.label}
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-black/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-white/[0.03]">
+                <div className="text-xs font-semibold uppercase tracking-wider text-black/60 dark:text-white/60">
+                  English
+                </div>
+                <div className="mt-4 text-sm text-black/60 dark:text-white/60">
+                  Coming soon.
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-black/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-white/[0.03]">
+                <div className="text-xs font-semibold uppercase tracking-wider text-black/60 dark:text-white/60">
+                  Português
+                </div>
+                <div className="mt-4 text-sm text-black/60 dark:text-white/60">
+                  Em breve.
+                </div>
+              </div>
             </div>
           </Container>
         </Section>

@@ -15,9 +15,69 @@ export const NAV_LINKS = [
   { href: "#schedule", label: "Timeline" },
   { href: "#rules", label: "Rules" },
   { href: "#submit", label: "Submit" },
+  { href: "#resources", label: "Resources" },
   { href: "#prizes", label: "Prizes" },
   { href: "#faq", label: "FAQ" },
 ] as const;
+
+export type ResourceLanguage = "spanish" | "english" | "portuguese";
+
+export const RESOURCES: Record<
+  ResourceLanguage,
+  ReadonlyArray<{ title: string; links: ReadonlyArray<{ label: string; url: string }> }>
+> = {
+  spanish: [
+    {
+      title: "Celo MX Resources (Español)",
+      links: [
+        {
+          label: "Construye tu colección de NFTs con Thirdweb en la red de Celo (YouTube playlist)",
+          url: "https://www.youtube.com/watch?v=vpm0krpqnqY&list=PLacAHCHDWS0oHVH7Toqvgjzi87NVSBEVJ",
+        },
+        {
+          label: "Construye tu colección de NFTs con Thirdweb en la red de Celo (Celo Academy)",
+          url: "https://www.celo.mx/academy/construye-tu-coleccion-de-nfts-con-thirweb-en-la-red-de-celo-mhw37vrj",
+        },
+        {
+          label: "Instalación y Configuración de un MCP Server con ComposerKit en Celo (YouTube)",
+          url: "https://www.youtube.com/watch?v=96GXwyv6uh4&list=PLacAHCHDWS0oHVH7Toqvgjzi87NVSBEVJ&index=2",
+        },
+        {
+          label: "Construye tu MiniApp en Farcaster (YouTube)",
+          url: "https://www.youtube.com/watch?v=FpuoYJIh7w8&list=PLacAHCHDWS0oHVH7Toqvgjzi87NVSBEVJ&index=3",
+        },
+        {
+          label: "Construye tu MiniApp en Farcaster (Celo Academy)",
+          url: "https://www.celo.mx/academy/construye-tu-miniapp-en-farcaster",
+        },
+        {
+          label: "Reputación On-Chain y Programas de Incentivos (Celo Academy)",
+          url: "https://www.celo.mx/academy/reputacion-on-chain-y-programas-de-incentivos",
+        },
+      ],
+    },
+    {
+      title: "Celo Colombia (Español)",
+      links: [
+        {
+          label: "Build in Public (YouTube)",
+          url: "https://youtu.be/LLVC6Gg-Czo",
+        },
+      ],
+    },
+    {
+      title: "CeLatam",
+      links: [
+        {
+          label: "CeLatam YouTube channel",
+          url: "https://www.youtube.com/@Celatam",
+        },
+      ],
+    },
+  ],
+  english: [],
+  portuguese: [],
+} as const;
 
 export const TIMELINE = [
   {
