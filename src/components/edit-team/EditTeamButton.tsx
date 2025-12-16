@@ -1,14 +1,13 @@
 "use client";
 
 import * as React from "react";
-
 import { Button } from "@/components/ui/button";
 import Squares from "@/components/home/Squares";
-import SubmitModal from "@/components/submit/SubmitModal";
+import EditTeamModal from "./EditTeamModal";
 import { cn } from "@/lib/cn";
 
-export default function SubmitButton({
-  label = "Submit",
+export default function EditTeamButton({
+  label = "Edit Team",
   variant = "secondary",
   size = "md",
   withSquares = false,
@@ -21,30 +20,24 @@ export default function SubmitButton({
   className?: string;
 }) {
   const [open, setOpen] = React.useState(false);
-  const [mounted, setMounted] = React.useState(false);
 
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // Check if current date is within the submission period (Jan 16 - Feb 27, 2026 UTC)
+  // Check if current date is within the edit period (Dec 17, 2025 - Feb 27, 2026 UTC)
   const now = new Date();
-  const startDate = new Date("2026-01-16T00:00:00Z");
+  const startDate = new Date("2025-12-17T00:00:00Z");
   const endDate = new Date("2026-02-27T23:59:59Z");
-  const isSubmissionPeriodActive = now >= startDate && now <= endDate;
+  const isEditPeriodActive = now >= startDate && now <= endDate;
 
   return (
     <>
       <Button
         variant={variant}
         size={size}
-        disabled={!isSubmissionPeriodActive}
+        disabled={!isEditPeriodActive}
         className={cn(
           withSquares ? "relative overflow-hidden" : null,
           withSquares && variant === "primary"
             ? "[--grid-border-color:rgba(0,0,0,0.10)] [--grid-hover-color:rgba(0,0,0,0.07)]"
             : null,
-          // Secondary buttons are white in light mode and black in dark mode → invert grid for contrast.
           withSquares && variant !== "primary"
             ? "[--grid-border-color:rgba(0,0,0,0.10)] [--grid-hover-color:rgba(0,0,0,0.07)] dark:[--grid-border-color:rgba(255,255,255,0.18)] dark:[--grid-hover-color:rgba(255,255,255,0.11)]"
             : null,
@@ -53,8 +46,8 @@ export default function SubmitButton({
         type="button"
         onClick={() => setOpen(true)}
         title={
-          !isSubmissionPeriodActive
-            ? "Project submission is only available from Jan 16, 2026 to Feb 27, 2026 (UTC)"
+          !isEditPeriodActive
+            ? "Team editing is only available from Dec 17, 2025 to Feb 27, 2026 (UTC)"
             : undefined
         }
       >
@@ -76,9 +69,7 @@ export default function SubmitButton({
           label
         )}
       </Button>
-      {mounted && isSubmissionPeriodActive ? (
-        <SubmitModal open={open} onOpenChange={setOpen} />
-      ) : null}
+      {isEditPeriodActive && <EditTeamModal open={open} onOpenChange={setOpen} />}
     </>
   );
 }

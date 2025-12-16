@@ -11,6 +11,7 @@ import {
 import { Faq } from "@/components/faq";
 import RegisterButton from "@/components/register/RegisterButton";
 import SubmitButton from "@/components/submit/SubmitButton";
+import EditTeamButton from "@/components/edit-team/EditTeamButton";
 import { Container, Section, SectionHeader } from "@/components/section";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
@@ -113,7 +114,7 @@ export default function Home() {
 
                   <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center">
                     <RegisterButton
-                      label="Apply now"
+                      label="Pre-register now"
                       variant="primary"
                       withSquares
                       className="shadow-lg shadow-[var(--celo-yellow)]/20"
@@ -240,9 +241,12 @@ export default function Home() {
                   </div>
 
                   <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                    <SquaresButtonLink className="w-full sm:w-auto" href={INFO.applyUrl}>
-                      Get started
-                    </SquaresButtonLink>
+                    <RegisterButton
+                      label="Pre-register now"
+                      variant="primary"
+                      withSquares
+                      className="w-full sm:w-auto"
+                    />
                     <SquaresButtonLink
                       className="w-full sm:w-auto"
                       variant="secondary"
@@ -277,6 +281,78 @@ export default function Home() {
                 </Card>
               ))}
             </div>
+          </Container>
+        </Section>
+
+        <Section id="submit" className="scroll-mt-20">
+          <Container>
+            <SectionHeader
+              title="Submit your project"
+              description="Once you&apos;ve pre-registered and built your project, submit it here with your Karma Gap link."
+            />
+
+            <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <Card className="p-8">
+                <div className="text-base font-semibold">Pre-registration (Dec 17 - Jan 16)</div>
+                <p className="mt-3 text-sm leading-relaxed text-black/70 dark:text-white/70">
+                  Register your team using the form on this website. You&apos;ll provide your team name,
+                  member details, and an EVM wallet address to receive 3 CELO for deployments.
+                </p>
+                <div className="mt-6">
+                  <RegisterButton
+                    label="Pre-register now"
+                    variant="primary"
+                    withSquares
+                    className="w-full sm:w-auto"
+                  />
+                </div>
+              </Card>
+
+              <Card className="p-8">
+                <div className="text-base font-semibold">Edit Team (Dec 17 - Feb 27)</div>
+                <p className="mt-3 text-sm leading-relaxed text-black/70 dark:text-white/70">
+                  Already registered? Update your team name, wallet address, or add/remove members.
+                  Enter any team member&apos;s email to find your team.
+                </p>
+                <div className="mt-6">
+                  <EditTeamButton
+                    label="Edit team"
+                    variant="secondary"
+                    withSquares
+                    className="w-full sm:w-auto"
+                  />
+                </div>
+              </Card>
+
+              <Card className="p-8">
+                <div className="text-base font-semibold">Submission (Jan 16 - Feb 27)</div>
+                <p className="mt-3 text-sm leading-relaxed text-black/70 dark:text-white/70">
+                  Submit your Karma Gap project link. Your Karma Gap profile must include your
+                  GitHub repo, demo video, presentation deck, and live demo URL.
+                </p>
+                <div className="mt-6">
+                  <SubmitButton
+                    label="Submit project"
+                    variant="secondary"
+                    withSquares
+                    className="w-full sm:w-auto"
+                  />
+                </div>
+              </Card>
+            </div>
+
+            <Card className="mt-6 border-[color:var(--celo-border)] bg-background/70 p-6">
+              <div className="text-sm font-semibold text-foreground mb-4">Submission Requirements</div>
+              <p className="text-sm text-black/70 dark:text-white/70 mb-4">
+                You&apos;ll submit your Karma Gap project link via the form. Your Karma Gap profile must include:
+              </p>
+              <div className="space-y-3 text-sm">
+                <ChecklistItem>GitHub repository link (repo should be empty before Jan 19, 2026)</ChecklistItem>
+                <ChecklistItem>Live demo URL (deployed on Celo Mainnet)</ChecklistItem>
+                <ChecklistItem>Presentation deck explaining your project</ChecklistItem>
+                <ChecklistItem>Demo video showing your application in action</ChecklistItem>
+              </div>
+            </Card>
           </Container>
         </Section>
 
@@ -325,62 +401,6 @@ export default function Home() {
           </Container>
         </Section>
 
-        <Section id="submit" className="scroll-mt-20">
-          <Container>
-            <SectionHeader
-              title="Submit your project"
-              description="Once you&apos;ve pre-registered and built your project, submit it here with your Karma Gap link."
-            />
-
-            <div className="mt-10 grid gap-6 md:grid-cols-2">
-              <Card className="p-8">
-                <div className="text-base font-semibold">Pre-registration (Dec 17 - Jan 16)</div>
-                <p className="mt-3 text-sm leading-relaxed text-black/70 dark:text-white/70">
-                  Register your team using the form on this website. You&apos;ll provide your team name,
-                  member details, and an EVM wallet address to receive 3 CELO for deployments.
-                </p>
-                <div className="mt-6">
-                  <RegisterButton
-                    label="Pre-register now"
-                    variant="primary"
-                    withSquares
-                    className="w-full sm:w-auto"
-                  />
-                </div>
-              </Card>
-
-              <Card className="p-8">
-                <div className="text-base font-semibold">Submission (Jan 16 - Feb 27)</div>
-                <p className="mt-3 text-sm leading-relaxed text-black/70 dark:text-white/70">
-                  Submit your Karma Gap project link. Your Karma Gap profile must include your
-                  GitHub repo, demo video, presentation deck, and live demo URL.
-                </p>
-                <div className="mt-6">
-                  <SubmitButton
-                    label="Submit project"
-                    variant="secondary"
-                    withSquares
-                    className="w-full sm:w-auto"
-                  />
-                </div>
-              </Card>
-            </div>
-
-            <Card className="mt-6 border-[color:var(--celo-border)] bg-background/70 p-6">
-              <div className="text-sm font-semibold text-foreground mb-4">Submission Requirements</div>
-              <p className="text-sm text-black/70 dark:text-white/70 mb-4">
-                You&apos;ll submit your Karma Gap project link via the form. Your Karma Gap profile must include:
-              </p>
-              <div className="space-y-3 text-sm">
-                <ChecklistItem>GitHub repository link (repo should be empty before Jan 19, 2026)</ChecklistItem>
-                <ChecklistItem>Live demo URL (deployed on Celo Mainnet)</ChecklistItem>
-                <ChecklistItem>Presentation deck explaining your project</ChecklistItem>
-                <ChecklistItem>Demo video showing your application in action</ChecklistItem>
-              </div>
-            </Card>
-          </Container>
-        </Section>
-
         <Section id="tracks" className="scroll-mt-20">
           <Container>
             <SectionHeader
@@ -393,7 +413,10 @@ export default function Home() {
                 <Card
                   key={t.title}
                   className={cn(
-                    "group p-8 transition-all hover:shadow-lg hover:shadow-black/5 dark:hover:shadow-white/5",
+                    "group p-8 transition-all",
+                    t.available
+                      ? "hover:shadow-lg hover:shadow-black/5 dark:hover:shadow-white/5"
+                      : "opacity-60",
                     t.title === "Open Track"
                       ? "border-[color:var(--celo-yellow)]/40 ring-2 ring-[color:var(--celo-yellow-weak)] dark:ring-[color:var(--celo-yellow)]/30"
                       : undefined,
@@ -401,9 +424,13 @@ export default function Home() {
                 >
                   <div className="flex items-center justify-between gap-3">
                     <div className="text-base font-semibold">{t.title}</div>
-                    {t.title === "Open Track" ? (
+                    {t.available && t.title === "Open Track" ? (
                       <span className="rounded-full border border-[color:var(--celo-yellow)]/50 bg-[var(--celo-yellow-weak)] px-2.5 py-1 text-[11px] font-semibold text-foreground shadow-sm">
                         Recommended
+                      </span>
+                    ) : !t.available ? (
+                      <span className="rounded-full border border-black/10 bg-black/5 px-2.5 py-1 text-[11px] font-medium text-black/60 dark:border-white/10 dark:bg-white/5 dark:text-white/60">
+                        Not available
                       </span>
                     ) : null}
                   </div>
@@ -443,7 +470,7 @@ export default function Home() {
                 </div>
                 <div className="flex flex-col gap-3 sm:flex-row">
                   <RegisterButton
-                    label="Apply now"
+                    label="Pre-register now"
                     variant="primary"
                     withSquares
                     className="bg-white text-black shadow-md hover:opacity-95 hover:shadow-lg"
@@ -474,7 +501,7 @@ export default function Home() {
               <SquaresButtonLink href={INFO.discordUrl} target="_blank" rel="noopener noreferrer">
                 Join Discord
               </SquaresButtonLink>
-              <RegisterButton label="Register" variant="secondary" withSquares />
+              <RegisterButton label="Pre-register now" variant="secondary" withSquares />
             </div>
           </Container>
         </Section>
@@ -526,8 +553,25 @@ export default function Home() {
                 <div className="text-xs font-semibold uppercase tracking-wider text-black/60 dark:text-white/60">
                   Português
                 </div>
-                <div className="mt-4 text-sm text-black/60 dark:text-white/60">
-                  Em breve.
+                <div className="mt-4 space-y-5">
+                  {RESOURCES.portuguese.map((group) => (
+                    <div key={group.title}>
+                      <div className="text-sm font-semibold">{group.title}</div>
+                      <div className="mt-2 space-y-2 text-sm">
+                        {group.links.map((l) => (
+                          <a
+                            key={l.url}
+                            href={l.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block text-black/70 transition-colors hover:text-foreground hover:underline dark:text-white/70"
+                          >
+                            {l.label}
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>

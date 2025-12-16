@@ -28,23 +28,11 @@ export const RESOURCES: Record<
 > = {
   spanish: [
     {
-      title: "Celo MX Resources (Español)",
+      title: "Celo MX Resources",
       links: [
-        {
-          label: "Construye tu colección de NFTs con Thirdweb en la red de Celo (YouTube playlist)",
-          url: "https://www.youtube.com/watch?v=vpm0krpqnqY&list=PLacAHCHDWS0oHVH7Toqvgjzi87NVSBEVJ",
-        },
         {
           label: "Construye tu colección de NFTs con Thirdweb en la red de Celo (Celo Academy)",
           url: "https://www.celo.mx/academy/construye-tu-coleccion-de-nfts-con-thirweb-en-la-red-de-celo-mhw37vrj",
-        },
-        {
-          label: "Instalación y Configuración de un MCP Server con ComposerKit en Celo (YouTube)",
-          url: "https://www.youtube.com/watch?v=96GXwyv6uh4&list=PLacAHCHDWS0oHVH7Toqvgjzi87NVSBEVJ&index=2",
-        },
-        {
-          label: "Construye tu MiniApp en Farcaster (YouTube)",
-          url: "https://www.youtube.com/watch?v=FpuoYJIh7w8&list=PLacAHCHDWS0oHVH7Toqvgjzi87NVSBEVJ&index=3",
         },
         {
           label: "Construye tu MiniApp en Farcaster (Celo Academy)",
@@ -54,13 +42,17 @@ export const RESOURCES: Record<
           label: "Reputación On-Chain y Programas de Incentivos (Celo Academy)",
           url: "https://www.celo.mx/academy/reputacion-on-chain-y-programas-de-incentivos",
         },
+        {
+          label: "Instalación y Configuración de un MCP Server con ComposerKit en Celo (YouTube)",
+          url: "https://www.youtube.com/watch?v=96GXwyv6uh4&list=PLacAHCHDWS0oHVH7Toqvgjzi87NVSBEVJ&index=2",
+        },
       ],
     },
     {
-      title: "Celo Colombia (Español)",
+      title: "Celo Colombia",
       links: [
         {
-          label: "Build in Public (YouTube)",
+          label: "Build in Public Playlist (YouTube)",
           url: "https://youtu.be/LLVC6Gg-Czo",
         },
       ],
@@ -69,14 +61,28 @@ export const RESOURCES: Record<
       title: "CeLatam",
       links: [
         {
-          label: "CeLatam YouTube channel",
-          url: "https://www.youtube.com/@Celatam",
+          label: "De 0 al Mini App | Tutoriales de Vibecoding",
+          url: "https://youtube.com/playlist?list=PLTHLb5LyByJsbq1eMoo-_4ySshi-QAG27",
+        },
+        {
+          label: "Webinars",
+          url: "https://youtube.com/playlist?list=PLTHLb5LyByJsBfXgRODRA2InM4-ZGPwKL",
         },
       ],
     },
   ],
   english: [],
-  portuguese: [],
+  portuguese: [
+    {
+      title: "CeLatam",
+      links: [
+        {
+          label: "Do 0 ao Mini App | Tutoriais de Vibecoding",
+          url: "https://youtube.com/playlist?list=PLTHLb5LyByJswm1jw1YG13dn9piwrk5_t",
+        },
+      ],
+    },
+  ],
 } as const;
 
 export const TIMELINE = [
@@ -98,11 +104,11 @@ export const TIMELINE = [
 ] as const;
 
 export const TRACKS = [
-  { title: "Open Track", description: "Anything goes—build what you’re most excited about." },
-  { title: "Farcaster Miniapps", description: "Build a miniapp experience for Farcaster." },
-  { title: "MiniPay Miniapps", description: "Build a MiniPay miniapp focused on real usage." },
-  { title: "Mento", description: "Build using Mento primitives / stable-value experiences." },
-  { title: "Self", description: "Build with Self (identity/attestations—define your angle)." },
+  { title: "Open Track", description: "Anything goes—build what you're most excited about.", available: true },
+  { title: "Farcaster Miniapps", description: "Build a miniapp experience for Farcaster.", available: false },
+  { title: "MiniPay Miniapps", description: "Build a MiniPay miniapp focused on real usage.", available: false },
+  { title: "Mento", description: "Build using Mento primitives / stable-value experiences.", available: false },
+  { title: "Self", description: "Build with Self (identity/attestations—define your angle).", available: false },
 ] as const;
 
 export type HighlightIconKey = "rocket" | "globe" | "star" | "bolt";
