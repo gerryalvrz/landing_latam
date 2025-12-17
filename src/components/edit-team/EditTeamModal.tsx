@@ -28,6 +28,31 @@ type TeamMember = {
   country: string | null;
 };
 
+const LATIN_AMERICAN_COUNTRIES = [
+  "Non Latin America Country",
+  "Argentina",
+  "Belize",
+  "Bolivia",
+  "Brazil",
+  "Chile",
+  "Colombia",
+  "Costa Rica",
+  "Cuba",
+  "Dominican Republic",
+  "Ecuador",
+  "El Salvador",
+  "Guatemala",
+  "Honduras",
+  "Mexico",
+  "Nicaragua",
+  "Panama",
+  "Paraguay",
+  "Peru",
+  "Puerto Rico",
+  "Uruguay",
+  "Venezuela",
+] as const;
+
 type TeamData = {
   id: string;
   teamName: string;
@@ -313,17 +338,22 @@ export default function EditTeamModal({
                         disabled={status === "loading"}
                       />
 
-                      <input
-                        type="text"
+                      <select
                         required
                         value={member.country || ""}
                         onChange={(e) =>
                           updateMember(index, "country", e.target.value)
                         }
-                        placeholder="Country *"
                         className={inputClassName}
                         disabled={status === "loading"}
-                      />
+                      >
+                        <option value="">Select a country...</option>
+                        {LATIN_AMERICAN_COUNTRIES.map((country) => (
+                          <option key={country} value={country}>
+                            {country}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   </div>
                 ))}
