@@ -259,7 +259,7 @@ export default function RegisterProjectModal({
                     <option value="new">+ Create New Team</option>
                     {teams.map((team) => (
                       <option key={team.id} value={team.id}>
-                        {team.teamName} ({team.members.length} members)
+                        {team.teamName} ({team.members?.length || 0} members)
                       </option>
                     ))}
                   </select>
