@@ -21,9 +21,9 @@ export default function EditTeamButton({
 }) {
   const [open, setOpen] = React.useState(false);
 
-  // Check if current date is within the edit period (Dec 17, 2025 - Feb 27, 2026 UTC)
+  // Check if current date is within the edit period (Dec 18, 2025 - Feb 27, 2026 UTC)
   const now = new Date();
-  const startDate = new Date("2025-12-17T00:00:00Z");
+  const startDate = new Date("2025-12-18T00:00:00Z");
   const endDate = new Date("2026-02-27T23:59:59Z");
   const isEditPeriodActive = now >= startDate && now <= endDate;
 
@@ -47,7 +47,7 @@ export default function EditTeamButton({
         onClick={() => setOpen(true)}
         title={
           !isEditPeriodActive
-            ? "Team editing is only available from Dec 17, 2025 to Feb 27, 2026 (UTC)"
+            ? "Team editing is only available from Dec 18, 2025 to Feb 27, 2026 (UTC)"
             : undefined
         }
       >

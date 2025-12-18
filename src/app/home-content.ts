@@ -88,7 +88,7 @@ export const RESOURCES: Record<
 export const TIMELINE = [
   {
     title: "Pre-registrations",
-    range: "Dec 17, 2025 → Jan 16, 2026",
+    range: "Dec 18, 2025 → Jan 16, 2026",
     note: "Get early access and prep your idea/team.",
   },
   {

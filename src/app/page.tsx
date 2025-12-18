@@ -103,7 +103,7 @@ export default function Home() {
                       <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
                       <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
                     </span>
-                    Pre-registrations: Dec 17, 2025 → Jan 16, 2026
+                    Pre-registrations: Dec 18, 2025 → Jan 16, 2026
                   </div>
                   <h1 className="mt-8 text-balance text-4xl font-title font-[200] leading-[1.1] tracking-tight sm:text-6xl sm:leading-[1.1]">
                     {INFO.tagline}
@@ -341,7 +341,7 @@ export default function Home() {
 
             <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               <Card className="p-8">
-                <div className="text-base font-semibold">Pre-registration (Dec 17 - Jan 16)</div>
+                <div className="text-base font-semibold">Pre-registration (Dec 18 - Jan 16)</div>
                 <p className="mt-3 text-sm leading-relaxed text-black/70 dark:text-white/70">
                   Register your team using the form on this website. You&apos;ll provide your team name,
                   member details, and an EVM wallet address to receive 3 CELO for deployments.
@@ -357,7 +357,7 @@ export default function Home() {
               </Card>
 
               <Card className="p-8">
-                <div className="text-base font-semibold">Edit Team (Dec 17 - Feb 27)</div>
+                <div className="text-base font-semibold">Edit Team (Dec 18 - Feb 27)</div>
                 <p className="mt-3 text-sm leading-relaxed text-black/70 dark:text-white/70">
                   Already registered? Update your team name, wallet address, or add/remove members.
                   Enter any team member&apos;s email to find your team.
@@ -646,7 +646,7 @@ export default function Home() {
               <div className="text-sm text-black/60 dark:text-white/60">
                 © {new Date().getFullYear()} {INFO.name}. Built for LATAM builders.
               </div>
-              <div className="flex items-center gap-5 text-sm">
+              <div className="flex flex-wrap items-center gap-5 text-sm">
                 {NAV_LINKS.filter((l) => l.href !== "#prizes").map((l) => (
                   <a
                     key={l.href}
@@ -656,6 +656,18 @@ export default function Home() {
                     {l.label}
                   </a>
                 ))}
+                <a
+                  className="text-black/70 transition-colors hover:text-foreground dark:text-white/70"
+                  href="/terms"
+                >
+                  Terms & Conditions
+                </a>
+                <a
+                  className="text-black/70 transition-colors hover:text-foreground dark:text-white/70"
+                  href="/privacy"
+                >
+                  Privacy Policy
+                </a>
                 <a
                   className="text-black/70 transition-colors hover:text-foreground dark:text-white/70"
                   href="https://www.radix-ui.com/primitives/docs/overview/introduction"
