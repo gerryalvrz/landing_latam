@@ -668,14 +668,6 @@ export default function Home() {
                 >
                   Privacy Policy
                 </a>
-                <a
-                  className="text-black/70 transition-colors hover:text-foreground dark:text-white/70"
-                  href="https://www.radix-ui.com/primitives/docs/overview/introduction"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Radix
-                </a>
               </div>
             </div>
 

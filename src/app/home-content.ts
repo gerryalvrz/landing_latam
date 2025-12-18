@@ -105,7 +105,7 @@ export const TIMELINE = [
 
 export const TRACKS = [
   { title: "Open Track", description: "Anything goes—build what you're most excited about.", available: true },
-  { title: "Farcaster Miniapps", description: "Build a miniapp experience for Farcaster.", available: false },
+  { title: "Farcaster Miniapps", description: "Get exposure from Celo Account in Farcaster in their MiniApp Mondays!", available: true },
   { title: "MiniPay Miniapps", description: "Build a MiniPay miniapp focused on real usage.", available: false },
   { title: "Mento", description: "Build using Mento primitives / stable-value experiences.", available: false },
   { title: "Self", description: "Build with Self (identity/attestations—define your angle).", available: false },
