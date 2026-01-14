@@ -71,7 +71,17 @@ export const RESOURCES: Record<
       ],
     },
   ],
-  english: [],
+  english: [
+    {
+      title: "Human.Tech",
+      links: [
+        {
+          label: "Human.Tech Documentation",
+          url: "https://docs.human.tech/",
+        },
+      ],
+    },
+  ],
   portuguese: [
     {
       title: "CeLatam",
@@ -106,7 +116,14 @@ export const TIMELINE = [
 export const TRACKS = [
   { title: "Open Track", description: "Anything goes—build what you're most excited about.", available: true },
   { title: "MiniApps (Farcaster/MiniPay)", description: "Build and launch a cool MiniApp on Farcaster or MiniPay and get exposure from Celo Account in Farcaster in their MiniApp Mondays!", available: true },
-  { title: "Self", description: "Build with Self (identity/attestations—define your angle).", available: false },
+  {
+    title: "Human.Tech",
+    description: "Build with Human.Tech stack (WaaP/Human Passport).",
+    available: true,
+    logoLight: "/human.tech_logo_black.svg",
+    logoDark: "/human.tech_logo_white.svg",
+    logoUrl: "https://human.tech",
+  },
 ] as const;
 
 export type HighlightIconKey = "rocket" | "globe" | "star" | "bolt";
@@ -182,3 +199,8 @@ export const FAQ = [
   },
 ] as const satisfies ReadonlyArray<FaqItem>;
 
+export const SPONSORS = [
+  { name: "Celo Latam Hubs", url: "https://latamhubs.lat" },
+  { name: "Celo Devs", url: "https://celo-devs.beehiiv.com/subscribe" },
+  { name: "Human.Tech", url: "https://human.tech" },
+] as const;

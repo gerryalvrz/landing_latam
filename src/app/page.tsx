@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import {
   GlobeIcon,
   LightningBoltIcon,
@@ -32,6 +33,7 @@ import {
   INFO,
   NAV_LINKS,
   RESOURCES,
+  SPONSORS,
   TIMELINE,
   TRACKS,
 } from "@/app/home-content";
@@ -45,8 +47,8 @@ export default function Home() {
   } as const;
 
   return (
-    <div className="min-h-dvh bg-background text-foreground">
-      <div className="pointer-events-none fixed inset-0 z-0">
+    <div className="min-h-dvh bg-background text-foreground overflow-x-hidden">
+      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
         <Squares
           direction="diagonal"
           speed={0.5}
@@ -57,7 +59,7 @@ export default function Home() {
 
       <header className="sticky top-0 z-20 border-b border-black/5 bg-background/80 backdrop-blur-xl dark:border-white/10">
         <Container className="flex h-16 items-center justify-between">
-          <div className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-3 transition-opacity hover:opacity-80">
             <div className="relative h-10 w-10 overflow-hidden rounded-lg bg-[var(--celo-yellow)] shadow-sm ring-1 ring-black/5 transition-transform hover:scale-105 dark:ring-white/10">
               <Image
                 src="/brand/Celo_Favicon.png"
@@ -74,7 +76,7 @@ export default function Home() {
                 Buildathon • LATAM
               </div>
             </div>
-          </div>
+          </Link>
 
           <nav className="hidden items-center gap-6 text-sm text-black/70 dark:text-white/70 md:flex">
             {NAV_LINKS.map((l) => (
@@ -98,12 +100,12 @@ export default function Home() {
             <Container className="relative z-10">
               <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-[1.1fr,0.9fr] items-center lg:gap-12">
                 <div className="max-w-3xl">
-                  <div className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/80 px-4 py-2 text-sm font-medium text-black/70 shadow-sm dark:border-white/15 dark:bg-white/[0.03] dark:text-white/70">
-                    <span className="relative inline-flex h-2.5 w-2.5">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/80 px-3 py-2 text-xs sm:text-sm sm:px-4 font-medium text-black/70 shadow-sm dark:border-white/15 dark:bg-white/[0.03] dark:text-white/70">
+                    <span className="relative inline-flex h-2.5 w-2.5 shrink-0">
                       <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
                       <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
                     </span>
-                    Pre-registrations: Dec 18, 2025 → Jan 16, 2026
+                    <span className="whitespace-nowrap">Pre-registrations: Dec 18, 2025 → Jan 16, 2026</span>
                   </div>
                   <h1 className="mt-8 text-balance text-4xl font-title font-[200] leading-[1.1] tracking-tight sm:text-6xl sm:leading-[1.1]">
                     {INFO.tagline}
@@ -179,13 +181,13 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="mt-12 grid gap-4 sm:grid-cols-3">
+              <div className="mt-12 grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-3">
                 <Stat label="Buildathon" value="Jan 19 → Feb 27, 2026" />
                 <Stat label="Winners" value="Mar 6, 2026" />
                 <Stat label="Region" value="Latin America" />
               </div>
 
-              <div className="mt-4 grid gap-4 sm:grid-cols-3">
+              <div className="mt-3 sm:mt-4 grid gap-3 sm:gap-4 grid-cols-3">
                 <Stat label="1st place" value="TBA" />
                 <Stat label="2nd place" value="TBA" />
                 <Stat label="3rd place" value="TBA" />
@@ -205,13 +207,13 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <div className="mt-6 grid gap-4 grid-cols-2">
+                  <div className="mt-6 grid gap-4 grid-cols-1 sm:grid-cols-2">
                     {HIGHLIGHTS.map((h) => (
                       <div key={h.title} className="flex items-start gap-2">
                         <div className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-black/[0.05] text-foreground dark:bg-white/[0.08]">
                           {iconByKey[h.icon]}
                         </div>
-                        <div>
+                        <div className="min-w-0">
                           <div className="text-xs font-semibold">{h.title}</div>
                           <p className="mt-0.5 text-xs leading-5 text-black/70 dark:text-white/70">
                             {h.description}
@@ -258,6 +260,20 @@ export default function Home() {
                   </div>
                 </Card>
               </div>
+
+              <div className="mt-10">
+                <div className="text-base font-semibold text-center mb-6">Sponsors</div>
+                <div className="grid gap-4 sm:grid-cols-3">
+                  {SPONSORS.map((sponsor) => (
+                    <Card
+                      key={sponsor.name}
+                      className="group p-6 text-center transition-all hover:shadow-lg hover:shadow-black/5 dark:hover:shadow-white/5"
+                    >
+                      <div className="text-base font-semibold">{sponsor.name}</div>
+                    </Card>
+                  ))}
+                </div>
+              </div>
             </Container>
           </div>
         </Section>
@@ -303,22 +319,22 @@ export default function Home() {
                     <p className="text-sm font-semibold text-amber-900 dark:text-amber-100">
                       UTC time conversions for Latin America:
                     </p>
-                    <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                      <div className="rounded-lg bg-white/50 px-3 py-2 text-sm dark:bg-black/20">
+                    <div className="mt-3 grid gap-2 grid-cols-1 sm:grid-cols-2">
+                      <div className="rounded-lg bg-white/50 px-3 py-2 text-xs sm:text-sm dark:bg-black/20">
                         <span className="font-medium">🇲🇽 Mexico (CST/CDT):</span>
-                        <span className="ml-2 text-amber-800 dark:text-amber-200">UTC -6 / -5</span>
+                        <span className="ml-1 sm:ml-2 text-amber-800 dark:text-amber-200">UTC -6 / -5</span>
                       </div>
-                      <div className="rounded-lg bg-white/50 px-3 py-2 text-sm dark:bg-black/20">
+                      <div className="rounded-lg bg-white/50 px-3 py-2 text-xs sm:text-sm dark:bg-black/20">
                         <span className="font-medium">🇨🇴 Colombia:</span>
-                        <span className="ml-2 text-amber-800 dark:text-amber-200">UTC -5</span>
+                        <span className="ml-1 sm:ml-2 text-amber-800 dark:text-amber-200">UTC -5</span>
                       </div>
-                      <div className="rounded-lg bg-white/50 px-3 py-2 text-sm dark:bg-black/20">
+                      <div className="rounded-lg bg-white/50 px-3 py-2 text-xs sm:text-sm dark:bg-black/20">
                         <span className="font-medium">🇦🇷 Argentina:</span>
-                        <span className="ml-2 text-amber-800 dark:text-amber-200">UTC -3</span>
+                        <span className="ml-1 sm:ml-2 text-amber-800 dark:text-amber-200">UTC -3</span>
                       </div>
-                      <div className="rounded-lg bg-white/50 px-3 py-2 text-sm dark:bg-black/20">
+                      <div className="rounded-lg bg-white/50 px-3 py-2 text-xs sm:text-sm dark:bg-black/20">
                         <span className="font-medium">🇧🇷 Brazil (BRT/BRST):</span>
-                        <span className="ml-2 text-amber-800 dark:text-amber-200">UTC -3 / -2</span>
+                        <span className="ml-1 sm:ml-2 text-amber-800 dark:text-amber-200">UTC -3 / -2</span>
                       </div>
                     </div>
                   </div>
@@ -485,6 +501,43 @@ export default function Home() {
                   <p className="mt-4 text-sm leading-relaxed text-black/70 dark:text-white/70">
                     {t.description}
                   </p>
+                  {"logoLight" in t && "logoDark" in t && (() => {
+                    const track = t as typeof t & { logoLight: string; logoDark: string; logoUrl?: string };
+                    const logoContent = (
+                      <>
+                        <Image
+                          src={track.logoLight}
+                          alt={`${track.title} logo`}
+                          width={120}
+                          height={28}
+                          className="h-7 w-auto object-contain dark:hidden"
+                        />
+                        <Image
+                          src={track.logoDark}
+                          alt={`${track.title} logo`}
+                          width={120}
+                          height={28}
+                          className="hidden h-7 w-auto object-contain dark:block"
+                        />
+                      </>
+                    );
+                    return (
+                      <div className="mt-4">
+                        {track.logoUrl ? (
+                          <a
+                            href={track.logoUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-block transition-opacity hover:opacity-70"
+                          >
+                            {logoContent}
+                          </a>
+                        ) : (
+                          logoContent
+                        )}
+                      </div>
+                    );
+                  })()}
                 </Card>
               ))}
             </div>
@@ -592,8 +645,25 @@ export default function Home() {
                 <div className="text-xs font-semibold uppercase tracking-wider text-black/60 dark:text-white/60">
                   English
                 </div>
-                <div className="mt-4 text-sm text-black/60 dark:text-white/60">
-                  Coming soon.
+                <div className="mt-4 space-y-5">
+                  {RESOURCES.english.map((group) => (
+                    <div key={group.title}>
+                      <div className="text-sm font-semibold">{group.title}</div>
+                      <div className="mt-2 space-y-2 text-sm">
+                        {group.links.map((l) => (
+                          <a
+                            key={l.url}
+                            href={l.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block text-black/70 hover:text-foreground hover:underline dark:text-white/70"
+                          >
+                            {l.label}
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
 

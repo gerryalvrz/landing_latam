@@ -30,7 +30,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Latam Buildathon",
     description:
-      "Build in public with LATAM’s fastest builders. Ship something real in days and launch faster.",
+      "Build in public with LATAM's fastest builders. Ship something real in days and launch faster.",
     type: "website",
   },
 };
