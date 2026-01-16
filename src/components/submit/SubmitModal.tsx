@@ -20,6 +20,45 @@ interface SubmitModalProps {
 type Status = "idle" | "loading" | "success" | "error";
 type Step = "email" | "submit";
 
+const TRACK_REQUIREMENTS = {
+  open: {
+    title: "Open Track Requirements",
+    requirements: [
+      "Build anything you're excited about on Celo",
+      "Deploy your project to a live environment",
+      "Include your project in Karma Gap with GitHub repo, deck, and demo video",
+      "Submit before the deadline (Feb 27, 2026)",
+    ],
+  },
+  miniapp: {
+    title: "MiniApps Track Requirements",
+    requirements: [
+      "Build and launch a MiniApp on Farcaster or MiniPay",
+      "MiniApp must be functional and accessible",
+      "Get potential exposure from Celo Account on MiniApp Mondays",
+      "Include demo video showing MiniApp functionality",
+    ],
+  },
+  humantech: {
+    title: "Human.Tech Track Requirements",
+    requirements: [
+      "Integrate Human.Tech stack (WaaP or Human Passport)",
+      "Demonstrate identity verification or proof-of-personhood features",
+      "Follow Human.Tech documentation: https://docs.human.tech/",
+      "Show clear usage of Human.Tech in your demo",
+    ],
+  },
+  v0: {
+    title: "v0 Track Requirements",
+    requirements: [
+      "Build your project using v0 by Vercel",
+      "Enable and display the 'Show v0 branding' badge on your deployed site",
+      "Publish your project as a public template in the v0 directory",
+      "Submit your template URL: https://v0.app/templates",
+    ],
+  },
+} as const;
+
 type TeamData = {
   id: string;
   teamName: string;
@@ -48,6 +87,7 @@ export default function SubmitModal({
     humantech: false,
     v0: false,
   });
+  const [showTrackInfo, setShowTrackInfo] = React.useState<"open" | "miniapp" | "humantech" | "v0" | null>(null);
 
   // Reset state when modal closes
   React.useEffect(() => {
@@ -236,89 +276,137 @@ export default function SubmitModal({
 
             <Field label="Tracks *">
               <div className="space-y-3">
-                <label className={cn(
-                  "flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition-colors",
+                <div className={cn(
+                  "flex items-start gap-3 rounded-lg border p-3 transition-colors",
                   selectedTracks.open
                     ? "border-black/30 bg-black/[0.06] dark:border-white/30 dark:bg-white/[0.06]"
-                    : "border-black/10 bg-black/[0.02] hover:bg-black/[0.04] dark:border-white/10 dark:bg-white/[0.02] dark:hover:bg-white/[0.04]"
+                    : "border-black/10 bg-black/[0.02] dark:border-white/10 dark:bg-white/[0.02]"
                 )}>
                   <input
                     type="checkbox"
                     checked={selectedTracks.open}
                     onChange={(e) => setSelectedTracks({ ...selectedTracks, open: e.target.checked })}
                     disabled={status === "loading"}
-                    className="mt-0.5"
+                    className="mt-0.5 cursor-pointer"
                   />
                   <div className="flex-1">
-                    <div className="text-sm font-medium">Open Track</div>
+                    <div className="flex items-center gap-2">
+                      <div className="text-sm font-medium">Open Track</div>
+                      <button
+                        type="button"
+                        onClick={() => setShowTrackInfo("open")}
+                        className="text-black/40 hover:text-black/60 dark:text-white/40 dark:hover:text-white/60 transition-colors"
+                        aria-label="View requirements"
+                      >
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </button>
+                    </div>
                     <div className="text-xs text-black/60 dark:text-white/60">
                       Build anything you&apos;re most excited about
                     </div>
                   </div>
-                </label>
+                </div>
 
-                <label className={cn(
-                  "flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition-colors",
+                <div className={cn(
+                  "flex items-start gap-3 rounded-lg border p-3 transition-colors",
                   selectedTracks.miniapp
                     ? "border-black/30 bg-black/[0.06] dark:border-white/30 dark:bg-white/[0.06]"
-                    : "border-black/10 bg-black/[0.02] hover:bg-black/[0.04] dark:border-white/10 dark:bg-white/[0.02] dark:hover:bg-white/[0.04]"
+                    : "border-black/10 bg-black/[0.02] dark:border-white/10 dark:bg-white/[0.02]"
                 )}>
                   <input
                     type="checkbox"
                     checked={selectedTracks.miniapp}
                     onChange={(e) => setSelectedTracks({ ...selectedTracks, miniapp: e.target.checked })}
                     disabled={status === "loading"}
-                    className="mt-0.5"
+                    className="mt-0.5 cursor-pointer"
                   />
                   <div className="flex-1">
-                    <div className="text-sm font-medium">MiniApps (Farcaster/MiniPay)</div>
+                    <div className="flex items-center gap-2">
+                      <div className="text-sm font-medium">MiniApps (Farcaster/MiniPay)</div>
+                      <button
+                        type="button"
+                        onClick={() => setShowTrackInfo("miniapp")}
+                        className="text-black/40 hover:text-black/60 dark:text-white/40 dark:hover:text-white/60 transition-colors"
+                        aria-label="View requirements"
+                      >
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </button>
+                    </div>
                     <div className="text-xs text-black/60 dark:text-white/60">
                       Build and launch a cool MiniApp on Farcaster or MiniPay and get exposure from Celo Account in Farcaster in their MiniApp Mondays!
                     </div>
                   </div>
-                </label>
+                </div>
 
-                <label className={cn(
-                  "flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition-colors",
+                <div className={cn(
+                  "flex items-start gap-3 rounded-lg border p-3 transition-colors",
                   selectedTracks.humantech
                     ? "border-black/30 bg-black/[0.06] dark:border-white/30 dark:bg-white/[0.06]"
-                    : "border-black/10 bg-black/[0.02] hover:bg-black/[0.04] dark:border-white/10 dark:bg-white/[0.02] dark:hover:bg-white/[0.04]"
+                    : "border-black/10 bg-black/[0.02] dark:border-white/10 dark:bg-white/[0.02]"
                 )}>
                   <input
                     type="checkbox"
                     checked={selectedTracks.humantech}
                     onChange={(e) => setSelectedTracks({ ...selectedTracks, humantech: e.target.checked })}
                     disabled={status === "loading"}
-                    className="mt-0.5"
+                    className="mt-0.5 cursor-pointer"
                   />
                   <div className="flex-1">
-                    <div className="text-sm font-medium">Human.Tech</div>
+                    <div className="flex items-center gap-2">
+                      <div className="text-sm font-medium">Human.Tech</div>
+                      <button
+                        type="button"
+                        onClick={() => setShowTrackInfo("humantech")}
+                        className="text-black/40 hover:text-black/60 dark:text-white/40 dark:hover:text-white/60 transition-colors"
+                        aria-label="View requirements"
+                      >
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </button>
+                    </div>
                     <div className="text-xs text-black/60 dark:text-white/60">
                       Build with Human.Tech stack (WaaP/Human Passport)
                     </div>
                   </div>
-                </label>
+                </div>
 
-                <label className={cn(
-                  "flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition-colors",
+                <div className={cn(
+                  "flex items-start gap-3 rounded-lg border p-3 transition-colors",
                   selectedTracks.v0
                     ? "border-black/30 bg-black/[0.06] dark:border-white/30 dark:bg-white/[0.06]"
-                    : "border-black/10 bg-black/[0.02] hover:bg-black/[0.04] dark:border-white/10 dark:bg-white/[0.02] dark:hover:bg-white/[0.04]"
+                    : "border-black/10 bg-black/[0.02] dark:border-white/10 dark:bg-white/[0.02]"
                 )}>
                   <input
                     type="checkbox"
                     checked={selectedTracks.v0}
                     onChange={(e) => setSelectedTracks({ ...selectedTracks, v0: e.target.checked })}
                     disabled={status === "loading"}
-                    className="mt-0.5"
+                    className="mt-0.5 cursor-pointer"
                   />
                   <div className="flex-1">
-                    <div className="text-sm font-medium">v0</div>
+                    <div className="flex items-center gap-2">
+                      <div className="text-sm font-medium">v0</div>
+                      <button
+                        type="button"
+                        onClick={() => setShowTrackInfo("v0")}
+                        className="text-black/40 hover:text-black/60 dark:text-white/40 dark:hover:text-white/60 transition-colors"
+                        aria-label="View requirements"
+                      >
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </button>
+                    </div>
                     <div className="text-xs text-black/60 dark:text-white/60">
                       Build with v0 and show the v0 branding on your site. Projects must be published as public templates in the v0 directory at https://v0.app/templates
                     </div>
                   </div>
-                </label>
+                </div>
               </div>
               <p className="mt-2 text-xs text-black/60 dark:text-white/60">
                 Select at least one primary track (Open Track or MiniApps). You can also select additional sponsor tracks (Human.Tech and/or v0).
@@ -349,6 +437,41 @@ export default function SubmitModal({
           </form>
         )}
       </DialogContent>
+
+      {/* Track Requirements Popup */}
+      <Dialog open={showTrackInfo !== null} onOpenChange={() => setShowTrackInfo(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>{showTrackInfo && TRACK_REQUIREMENTS[showTrackInfo].title}</DialogTitle>
+            <DialogDescription>
+              Review the requirements to be eligible for this track
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="mt-4">
+            <ul className="space-y-3">
+              {showTrackInfo && TRACK_REQUIREMENTS[showTrackInfo].requirements.map((req, idx) => (
+                <li key={idx} className="flex items-start gap-3">
+                  <svg className="w-5 h-5 text-emerald-600 dark:text-emerald-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span className="text-sm text-black/80 dark:text-white/80">{req}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="mt-6">
+            <Button
+              type="button"
+              onClick={() => setShowTrackInfo(null)}
+              className="w-full rounded-full"
+            >
+              Got it
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }

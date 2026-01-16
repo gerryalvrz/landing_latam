@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -23,8 +24,15 @@ import {
   Stat,
 } from "@/components/home/home-ui";
 import Squares from "@/components/home/Squares";
-import { ButtonLink } from "@/components/ui/button";
+import { Button, ButtonLink } from "@/components/ui/button";
 import { SquaresButtonLink } from "@/components/ui/squares-button-link";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/cn";
 import {
   COMMUNITIES,
@@ -38,7 +46,47 @@ import {
   TRACKS,
 } from "@/app/home-content";
 
+const TRACK_REQUIREMENTS = {
+  "Open Track": {
+    title: "Open Track Requirements",
+    requirements: [
+      "Build anything you're excited about on Celo",
+      "Deploy your project to a live environment",
+      "Include your project in Karma Gap with GitHub repo, deck, and demo video",
+      "Submit before the deadline (Feb 27, 2026)",
+    ],
+  },
+  "MiniApps (Farcaster/MiniPay)": {
+    title: "MiniApps Track Requirements",
+    requirements: [
+      "Build and launch a MiniApp on Farcaster or MiniPay",
+      "MiniApp must be functional and accessible",
+      "Get potential exposure from Celo Account on MiniApp Mondays",
+      "Include demo video showing MiniApp functionality",
+    ],
+  },
+  "Human.Tech": {
+    title: "Human.Tech Track Requirements",
+    requirements: [
+      "Integrate Human.Tech stack (WaaP or Human Passport)",
+      "Demonstrate identity verification or proof-of-personhood features",
+      "Follow Human.Tech documentation: https://docs.human.tech/",
+      "Show clear usage of Human.Tech in your demo",
+    ],
+  },
+  "v0": {
+    title: "v0 Track Requirements",
+    requirements: [
+      "Build your project using v0 by Vercel",
+      "Enable and display the 'Show v0 branding' badge on your deployed site",
+      "Publish your project as a public template in the v0 directory",
+      "Submit your template URL: https://v0.app/templates",
+    ],
+  },
+} as const;
+
 export default function Home() {
+  const [showTrackInfo, setShowTrackInfo] = React.useState<string | null>(null);
   const iconByKey = {
     rocket: <RocketIcon className="h-5 w-5" />,
     globe: <GlobeIcon className="h-5 w-5" />,
@@ -105,7 +153,7 @@ export default function Home() {
                       <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
                       <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
                     </span>
-                    <span className="whitespace-nowrap">Pre-registrations: Dec 18, 2025 → Jan 16, 2026</span>
+                    <span className="whitespace-nowrap">Pre-registrations: Dec 18, 2025 → Jan 19, 2026</span>
                   </div>
                   <h1 className="mt-8 text-balance text-4xl font-title font-[200] leading-[1.1] tracking-tight sm:text-6xl sm:leading-[1.1]">
                     {INFO.tagline}
@@ -263,29 +311,27 @@ export default function Home() {
 
               <div className="mt-10">
                 <div className="text-base font-semibold text-center mb-6">Sponsors</div>
-                <div className="grid gap-4 sm:grid-cols-3">
+                <div className="flex flex-wrap gap-6 justify-center">
                   {SPONSORS.map((sponsor) => {
-                    if (sponsor.website) {
-                      return (
-                        <Link
-                          key={sponsor.name}
-                          href={sponsor.website}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <Card className="group p-6 text-center transition-all hover:shadow-lg hover:shadow-black/5 dark:hover:shadow-white/5 cursor-pointer">
-                            <div className="text-base font-semibold">{sponsor.name}</div>
-                          </Card>
-                        </Link>
-                      );
-                    }
-                    return (
-                      <Card
-                        key={sponsor.name}
-                        className="group p-6 text-center transition-all hover:shadow-lg hover:shadow-black/5 dark:hover:shadow-white/5"
-                      >
-                        <div className="text-base font-semibold">{sponsor.name}</div>
+                    const card = (
+                      <Card className="group p-8 text-center transition-all hover:shadow-lg hover:shadow-black/5 dark:hover:shadow-white/5 min-w-[240px] w-full sm:w-auto">
+                        <div className="text-lg font-semibold">{sponsor.name}</div>
                       </Card>
+                    );
+                    return sponsor.website ? (
+                      <Link
+                        key={sponsor.name}
+                        href={sponsor.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full sm:w-auto"
+                      >
+                        {card}
+                      </Link>
+                    ) : (
+                      <div key={sponsor.name} className="w-full sm:w-auto">
+                        {card}
+                      </div>
                     );
                   })}
                 </div>
@@ -356,7 +402,7 @@ export default function Home() {
                   </div>
 
                   <p className="mt-4 text-xs text-amber-700 dark:text-amber-300">
-                    💡 <strong>Tip:</strong> When a deadline is "Jan 16, 2026 00:00 UTC", it means Jan 15 at 6:00 PM in Mexico City, 7:00 PM in Bogotá, and 9:00 PM in Buenos Aires/São Paulo. Use a <a href="https://www.timeanddate.com/worldclock/converter.html" target="_blank" rel="noopener noreferrer" className="underline hover:text-amber-900 dark:hover:text-amber-100">UTC converter</a> to check your local time.
+                    💡 <strong>Tip:</strong> When a deadline is "Jan 19, 2026 00:00 UTC", it means Jan 18 at 6:00 PM in Mexico City, 7:00 PM in Bogotá, and 9:00 PM in Buenos Aires/São Paulo. Use a <a href="https://www.timeanddate.com/worldclock/converter.html" target="_blank" rel="noopener noreferrer" className="underline hover:text-amber-900 dark:hover:text-amber-100">UTC converter</a> to check your local time.
                   </p>
                 </div>
               </div>
@@ -373,7 +419,7 @@ export default function Home() {
 
             <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               <Card className="p-8">
-                <div className="text-base font-semibold">Pre-registration (Dec 18 - Jan 16)</div>
+                <div className="text-base font-semibold">Pre-registration (Dec 18 - Jan 19)</div>
                 <p className="mt-3 text-sm leading-relaxed text-black/70 dark:text-white/70">
                   Register your team using the form on this website. You&apos;ll provide your team name,
                   member details, and an EVM wallet address to receive 3 CELO for deployments.
@@ -405,7 +451,7 @@ export default function Home() {
               </Card>
 
               <Card className="p-8">
-                <div className="text-base font-semibold">Submission (Jan 16 - Feb 27)</div>
+                <div className="text-base font-semibold">Submission (Jan 19 - Feb 27)</div>
                 <p className="mt-3 text-sm leading-relaxed text-black/70 dark:text-white/70">
                   Submit your Karma Gap project link. Your Karma Gap profile must include your
                   GitHub repo, demo video, presentation deck, and live demo URL.
@@ -481,7 +527,7 @@ export default function Home() {
               description="You can apply to as many tracks as you want. Pick the tracks that best match your app and integrations."
             />
 
-            <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {TRACKS.map((t) => (
                 <Card
                   key={t.title}
@@ -496,33 +542,52 @@ export default function Home() {
                   )}
                 >
                   <div className="flex items-center justify-between gap-3">
-                    <div className="text-base font-semibold">{t.title}</div>
-                    {!t.available ? (
-                      <span className="rounded-full border border-black/10 bg-black/5 px-2.5 py-1 text-[11px] font-medium text-black/60 dark:border-white/10 dark:bg-white/5 dark:text-white/60">
-                        Not available
-                      </span>
-                    ) : null}
+                    <div className="flex items-center gap-2">
+                      <div className="text-base font-semibold">{t.title}</div>
+                      {t.title in TRACK_REQUIREMENTS && (
+                        <button
+                          onClick={() => setShowTrackInfo(t.title)}
+                          className="text-black/40 hover:text-black/60 dark:text-white/40 dark:hover:text-white/60 transition-colors"
+                          aria-label="View requirements"
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+                    <div>
+                      {t.available && t.title === "Open Track" ? (
+                        <span className="rounded-full border border-[color:var(--celo-yellow)]/50 bg-[var(--celo-yellow-weak)] px-2.5 py-1 text-[11px] font-semibold text-foreground shadow-sm">
+                          Recommended
+                        </span>
+                      ) : !t.available ? (
+                        <span className="rounded-full border border-black/10 bg-black/5 px-2.5 py-1 text-[11px] font-medium text-black/60 dark:border-white/10 dark:bg-white/5 dark:text-white/60">
+                          Not available
+                        </span>
+                      ) : null}
+                    </div>
                   </div>
                   <p className="mt-4 text-sm leading-relaxed text-black/70 dark:text-white/70">
                     {t.description}
                   </p>
-                  {"logoLight" in t && "logoDark" in t && (() => {
+                  {("logoLight" in t && "logoDark" in t) && (() => {
                     const track = t as typeof t & { logoLight: string; logoDark: string; logoUrl?: string };
                     const logoContent = (
                       <>
                         <Image
                           src={track.logoLight}
                           alt={`${track.title} logo`}
-                          width={120}
-                          height={28}
-                          className="h-7 w-auto object-contain dark:hidden"
+                          width={80}
+                          height={20}
+                          className="h-5 w-auto object-contain dark:hidden"
                         />
                         <Image
                           src={track.logoDark}
                           alt={`${track.title} logo`}
-                          width={120}
-                          height={28}
-                          className="hidden h-7 w-auto object-contain dark:block"
+                          width={80}
+                          height={20}
+                          className="hidden h-5 w-auto object-contain dark:block"
                         />
                       </>
                     );
@@ -773,6 +838,41 @@ export default function Home() {
           </div>
         </Container>
       </footer>
+
+      {/* Track Requirements Popup */}
+      <Dialog open={showTrackInfo !== null} onOpenChange={() => setShowTrackInfo(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>{showTrackInfo && TRACK_REQUIREMENTS[showTrackInfo as keyof typeof TRACK_REQUIREMENTS]?.title}</DialogTitle>
+            <DialogDescription>
+              Review the requirements to be eligible for this track
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="mt-4">
+            <ul className="space-y-3">
+              {showTrackInfo && TRACK_REQUIREMENTS[showTrackInfo as keyof typeof TRACK_REQUIREMENTS]?.requirements.map((req, idx) => (
+                <li key={idx} className="flex items-start gap-3">
+                  <svg className="w-5 h-5 text-emerald-600 dark:text-emerald-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span className="text-sm text-black/80 dark:text-white/80">{req}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="mt-6">
+            <Button
+              type="button"
+              onClick={() => setShowTrackInfo(null)}
+              className="w-full rounded-full"
+            >
+              Got it
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

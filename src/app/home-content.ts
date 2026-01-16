@@ -107,7 +107,7 @@ export const RESOURCES: Record<
 export const TIMELINE = [
   {
     title: "Pre-registrations",
-    range: "Dec 18, 2025 → Jan 16, 2026",
+    range: "Dec 18, 2025 → Jan 19, 2026",
     note: "Get early access and prep your idea/team.",
   },
   {
@@ -137,6 +137,9 @@ export const TRACKS = [
     title: "v0",
     description: "Build with v0 and show the v0 branding on your site. Projects must be published as public templates in the v0 directory at https://v0.app/templates",
     available: true,
+    logoLight: "/v0-logo-light.svg",
+    logoDark: "/v0-logo-dark.svg",
+    logoUrl: "https://v0.app",
   },
 ] as const;
 
@@ -218,7 +221,6 @@ export type Sponsor = {
   website?: string;
 };
 
-// TEST: Testing direct push to upstream/main - can be removed after verification
 export const SPONSORS: ReadonlyArray<Sponsor> = [
   { name: "Celo Latam Hubs", website: "https://latamhubs.lat" },
   { name: "Celo Devs", website: "https://celo-devs.beehiiv.com/subscribe" },

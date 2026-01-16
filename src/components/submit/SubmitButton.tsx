@@ -27,9 +27,9 @@ export default function SubmitButton({
     setMounted(true);
   }, []);
 
-  // Check if current date is within the submission period (Jan 16 - Feb 27, 2026 UTC)
+  // Check if current date is within the submission period (Jan 19 - Feb 27, 2026 UTC)
   const now = new Date();
-  const startDate = new Date("2026-01-16T00:00:00Z");
+  const startDate = new Date("2026-01-19T00:00:00Z");
   const endDate = new Date("2026-02-27T23:59:59Z");
   const isSubmissionPeriodActive = now >= startDate && now <= endDate;
 
@@ -54,7 +54,7 @@ export default function SubmitButton({
         onClick={() => setOpen(true)}
         title={
           !isSubmissionPeriodActive
-            ? "Project submission is only available from Jan 16, 2026 to Feb 27, 2026 (UTC)"
+            ? "Project submission is only available from Jan 19, 2026 to Feb 27, 2026 (UTC)"
             : undefined
         }
       >
