@@ -9,6 +9,7 @@ type SubmitPayload = {
   trackOpenTrack: boolean;
   trackFarcasterMiniapp: boolean;
   trackSelf: boolean;
+  trackV0: boolean;
 };
 
 export async function POST(req: Request) {
@@ -26,6 +27,7 @@ export async function POST(req: Request) {
     const trackOpenTrack = typeof body.trackOpenTrack === "boolean" ? body.trackOpenTrack : false;
     const trackFarcasterMiniapp = typeof body.trackFarcasterMiniapp === "boolean" ? body.trackFarcasterMiniapp : false;
     const trackSelf = typeof body.trackSelf === "boolean" ? body.trackSelf : false;
+    const trackV0 = typeof body.trackV0 === "boolean" ? body.trackV0 : false;
 
     if (!teamId) {
       return NextResponse.json(
@@ -41,10 +43,10 @@ export async function POST(req: Request) {
       );
     }
 
-    // Validate at least one track is selected
-    if (!trackOpenTrack && !trackFarcasterMiniapp && !trackSelf) {
+    // Validate at least one primary track is selected (Open Track or MiniApps)
+    if (!trackOpenTrack && !trackFarcasterMiniapp) {
       return NextResponse.json(
-        { error: "Please select at least one track for your project" },
+        { error: "Please select at least one primary track: Open Track or MiniApps" },
         { status: 400 },
       );
     }
@@ -80,12 +82,14 @@ export async function POST(req: Request) {
         trackOpenTrack,
         trackFarcasterMiniapp,
         trackSelf,
+        trackV0,
       },
       update: {
         karmaGapLink,
         trackOpenTrack,
         trackFarcasterMiniapp,
         trackSelf,
+        trackV0,
       },
     });
 

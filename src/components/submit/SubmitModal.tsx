@@ -28,6 +28,7 @@ type TeamData = {
     trackOpenTrack: boolean;
     trackFarcasterMiniapp: boolean;
     trackSelf: boolean;
+    trackV0: boolean;
   } | null;
 };
 
@@ -41,7 +42,12 @@ export default function SubmitModal({
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
   const [teamData, setTeamData] = React.useState<TeamData | null>(null);
   const [karmaGapLink, setKarmaGapLink] = React.useState("");
-  const [selectedTrack, setSelectedTrack] = React.useState<"open" | "miniapp" | null>(null);
+  const [selectedTracks, setSelectedTracks] = React.useState({
+    open: false,
+    miniapp: false,
+    humantech: false,
+    v0: false,
+  });
 
   // Reset state when modal closes
   React.useEffect(() => {
@@ -52,7 +58,7 @@ export default function SubmitModal({
       setErrorMessage(null);
       setTeamData(null);
       setKarmaGapLink("");
-      setSelectedTrack(null);
+      setSelectedTracks({ open: false, miniapp: false, humantech: false, v0: false });
     }
   }, [open]);
 
@@ -70,14 +76,13 @@ export default function SubmitModal({
         const data = (await res.json()) as { team: TeamData };
         setTeamData(data.team);
         setKarmaGapLink(data.team.submission?.karmaGapLink || "");
-        // Set selected track based on existing submission
-        if (data.team.submission?.trackOpenTrack) {
-          setSelectedTrack("open");
-        } else if (data.team.submission?.trackFarcasterMiniapp) {
-          setSelectedTrack("miniapp");
-        } else {
-          setSelectedTrack(null);
-        }
+        // Set selected tracks based on existing submission
+        setSelectedTracks({
+          open: data.team.submission?.trackOpenTrack || false,
+          miniapp: data.team.submission?.trackFarcasterMiniapp || false,
+          humantech: data.team.submission?.trackSelf || false,
+          v0: data.team.submission?.trackV0 || false,
+        });
         setStep("submit");
         setStatus("idle");
       } else {
@@ -114,10 +119,10 @@ export default function SubmitModal({
         return;
       }
 
-      // Validate track is selected
-      if (!selectedTrack) {
+      // Validate at least one primary track is selected (Open Track or MiniApps)
+      if (!selectedTracks.open && !selectedTracks.miniapp) {
         setStatus("error");
-        setErrorMessage("Please select a track for your project.");
+        setErrorMessage("Please select at least one primary track: Open Track or MiniApps.");
         return;
       }
 
@@ -127,9 +132,10 @@ export default function SubmitModal({
         body: JSON.stringify({
           teamId: teamData?.id,
           karmaGapLink: karmaGapLink.trim(),
-          trackOpenTrack: selectedTrack === "open",
-          trackFarcasterMiniapp: selectedTrack === "miniapp",
-          trackSelf: false,
+          trackOpenTrack: selectedTracks.open,
+          trackFarcasterMiniapp: selectedTracks.miniapp,
+          trackSelf: selectedTracks.humantech,
+          trackV0: selectedTracks.v0,
         }),
       });
 
@@ -228,19 +234,18 @@ export default function SubmitModal({
               </p>
             </Field>
 
-            <Field label="Track *">
+            <Field label="Tracks *">
               <div className="space-y-3">
                 <label className={cn(
                   "flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition-colors",
-                  selectedTrack === "open"
+                  selectedTracks.open
                     ? "border-black/30 bg-black/[0.06] dark:border-white/30 dark:bg-white/[0.06]"
                     : "border-black/10 bg-black/[0.02] hover:bg-black/[0.04] dark:border-white/10 dark:bg-white/[0.02] dark:hover:bg-white/[0.04]"
                 )}>
                   <input
-                    type="radio"
-                    name="track"
-                    checked={selectedTrack === "open"}
-                    onChange={() => setSelectedTrack("open")}
+                    type="checkbox"
+                    checked={selectedTracks.open}
+                    onChange={(e) => setSelectedTracks({ ...selectedTracks, open: e.target.checked })}
                     disabled={status === "loading"}
                     className="mt-0.5"
                   />
@@ -254,15 +259,14 @@ export default function SubmitModal({
 
                 <label className={cn(
                   "flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition-colors",
-                  selectedTrack === "miniapp"
+                  selectedTracks.miniapp
                     ? "border-black/30 bg-black/[0.06] dark:border-white/30 dark:bg-white/[0.06]"
                     : "border-black/10 bg-black/[0.02] hover:bg-black/[0.04] dark:border-white/10 dark:bg-white/[0.02] dark:hover:bg-white/[0.04]"
                 )}>
                   <input
-                    type="radio"
-                    name="track"
-                    checked={selectedTrack === "miniapp"}
-                    onChange={() => setSelectedTrack("miniapp")}
+                    type="checkbox"
+                    checked={selectedTracks.miniapp}
+                    onChange={(e) => setSelectedTracks({ ...selectedTracks, miniapp: e.target.checked })}
                     disabled={status === "loading"}
                     className="mt-0.5"
                   />
@@ -273,9 +277,51 @@ export default function SubmitModal({
                     </div>
                   </div>
                 </label>
+
+                <label className={cn(
+                  "flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition-colors",
+                  selectedTracks.humantech
+                    ? "border-black/30 bg-black/[0.06] dark:border-white/30 dark:bg-white/[0.06]"
+                    : "border-black/10 bg-black/[0.02] hover:bg-black/[0.04] dark:border-white/10 dark:bg-white/[0.02] dark:hover:bg-white/[0.04]"
+                )}>
+                  <input
+                    type="checkbox"
+                    checked={selectedTracks.humantech}
+                    onChange={(e) => setSelectedTracks({ ...selectedTracks, humantech: e.target.checked })}
+                    disabled={status === "loading"}
+                    className="mt-0.5"
+                  />
+                  <div className="flex-1">
+                    <div className="text-sm font-medium">Human.Tech</div>
+                    <div className="text-xs text-black/60 dark:text-white/60">
+                      Build with Human.Tech stack (WaaP/Human Passport)
+                    </div>
+                  </div>
+                </label>
+
+                <label className={cn(
+                  "flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition-colors",
+                  selectedTracks.v0
+                    ? "border-black/30 bg-black/[0.06] dark:border-white/30 dark:bg-white/[0.06]"
+                    : "border-black/10 bg-black/[0.02] hover:bg-black/[0.04] dark:border-white/10 dark:bg-white/[0.02] dark:hover:bg-white/[0.04]"
+                )}>
+                  <input
+                    type="checkbox"
+                    checked={selectedTracks.v0}
+                    onChange={(e) => setSelectedTracks({ ...selectedTracks, v0: e.target.checked })}
+                    disabled={status === "loading"}
+                    className="mt-0.5"
+                  />
+                  <div className="flex-1">
+                    <div className="text-sm font-medium">v0</div>
+                    <div className="text-xs text-black/60 dark:text-white/60">
+                      Build with v0 and show the v0 branding on your site. Projects must be published as public templates in the v0 directory at https://v0.app/templates
+                    </div>
+                  </div>
+                </label>
               </div>
               <p className="mt-2 text-xs text-black/60 dark:text-white/60">
-                Choose one track for your project
+                Select at least one primary track (Open Track or MiniApps). You can also select additional sponsor tracks (Human.Tech and/or v0).
               </p>
             </Field>
 

@@ -133,6 +133,11 @@ export const TRACKS = [
     logoDark: "/human.tech_logo_white.svg",
     logoUrl: "https://human.tech",
   },
+  {
+    title: "v0",
+    description: "Build with v0 and show the v0 branding on your site. Projects must be published as public templates in the v0 directory at https://v0.app/templates",
+    available: true,
+  },
 ] as const;
 
 export type HighlightIconKey = "rocket" | "globe" | "star" | "bolt";
