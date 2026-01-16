@@ -264,14 +264,30 @@ export default function Home() {
               <div className="mt-10">
                 <div className="text-base font-semibold text-center mb-6">Sponsors</div>
                 <div className="grid gap-4 sm:grid-cols-3">
-                  {SPONSORS.map((sponsor) => (
-                    <Card
-                      key={sponsor.name}
-                      className="group p-6 text-center transition-all hover:shadow-lg hover:shadow-black/5 dark:hover:shadow-white/5"
-                    >
-                      <div className="text-base font-semibold">{sponsor.name}</div>
-                    </Card>
-                  ))}
+                  {SPONSORS.map((sponsor) => {
+                    if (sponsor.website) {
+                      return (
+                        <Link
+                          key={sponsor.name}
+                          href={sponsor.website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Card className="group p-6 text-center transition-all hover:shadow-lg hover:shadow-black/5 dark:hover:shadow-white/5 cursor-pointer">
+                            <div className="text-base font-semibold">{sponsor.name}</div>
+                          </Card>
+                        </Link>
+                      );
+                    }
+                    return (
+                      <Card
+                        key={sponsor.name}
+                        className="group p-6 text-center transition-all hover:shadow-lg hover:shadow-black/5 dark:hover:shadow-white/5"
+                      >
+                        <div className="text-base font-semibold">{sponsor.name}</div>
+                      </Card>
+                    );
+                  })}
                 </div>
               </div>
             </Container>
@@ -411,7 +427,7 @@ export default function Home() {
                 You&apos;ll submit your Karma Gap project link via the form. Your Karma Gap profile must include:
               </p>
               <div className="space-y-3 text-sm">
-                <ChecklistItem>GitHub repository link (repo should be empty before Jan 19, 2026)</ChecklistItem>
+                <ChecklistItem>GitHub repository link (repo should be public)</ChecklistItem>
                 <ChecklistItem>Live demo URL (deployed on Celo Mainnet)</ChecklistItem>
                 <ChecklistItem>Presentation deck explaining your project</ChecklistItem>
                 <ChecklistItem>Demo video showing your application in action</ChecklistItem>
@@ -449,13 +465,6 @@ export default function Home() {
                     Projects must have a <span className="font-medium">live public URL</span> for the demo.
                   </RuleItem>
                 </li>
-                <li>
-                  <RuleItem>
-                    GitHub repos should have <span className="font-medium">no code</span> before the
-                    buildathon start date (<span className="font-medium">2026-01-19</span>).
-                    Only README, LICENSE, and .gitignore files are allowed.
-                  </RuleItem>
-                </li>
               </ul>
               <div className="mt-4 text-xs text-[color:var(--celo-muted)]">
                 Notes: you can register without a GitHub repo and add it later. For final submission, ensure your
@@ -488,11 +497,7 @@ export default function Home() {
                 >
                   <div className="flex items-center justify-between gap-3">
                     <div className="text-base font-semibold">{t.title}</div>
-                    {t.available && t.title === "Open Track" ? (
-                      <span className="rounded-full border border-[color:var(--celo-yellow)]/50 bg-[var(--celo-yellow-weak)] px-2.5 py-1 text-[11px] font-semibold text-foreground shadow-sm">
-                        Recommended
-                      </span>
-                    ) : !t.available ? (
+                    {!t.available ? (
                       <span className="rounded-full border border-black/10 bg-black/5 px-2.5 py-1 text-[11px] font-medium text-black/60 dark:border-white/10 dark:bg-white/5 dark:text-white/60">
                         Not available
                       </span>
