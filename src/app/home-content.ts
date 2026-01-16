@@ -92,6 +92,15 @@ export const RESOURCES: Record<
         },
       ],
     },
+    {
+      title: "Celo Builders PT",
+      links: [
+        {
+          label: "Celo Builders PT - Recursos e Guias",
+          url: "https://striped-track-8f3.notion.site/Celo-Builders-PT-2e11710eea9e81c69edcd7e2158c97be",
+        },
+      ],
+    },
   ],
 } as const;
 
@@ -114,7 +123,7 @@ export const TIMELINE = [
 ] as const;
 
 export const TRACKS = [
-  { title: "Open Track", description: "Anything goes—build what you're most excited about on Celo Mainnet (Testnet projects don't apply).", available: true },
+  { title: "Open Track", description: "Anything goes, build what you're most excited about.", available: true },
   { title: "MiniApps (Farcaster/MiniPay)", description: "Build and launch a cool MiniApp on Farcaster or MiniPay and get exposure from Celo Account in Farcaster in their MiniApp Mondays!", available: true },
   {
     title: "Human.Tech",
@@ -123,6 +132,11 @@ export const TRACKS = [
     logoLight: "/human.tech_logo_black.svg",
     logoDark: "/human.tech_logo_white.svg",
     logoUrl: "https://human.tech",
+  },
+  {
+    title: "v0",
+    description: "Build with v0 and show the v0 branding on your site. Projects must be published as public templates in the v0 directory at https://v0.app/templates",
+    available: true,
   },
 ] as const;
 

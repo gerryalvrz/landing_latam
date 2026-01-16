@@ -44,6 +44,7 @@ model Submission {
   trackOpenTrack        Boolean  @default(false)
   trackFarcasterMiniapp Boolean  @default(false)
   trackSelf             Boolean  @default(false)
+  trackV0               Boolean  @default(false)
   team                  Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
 
   @@map("submissions")

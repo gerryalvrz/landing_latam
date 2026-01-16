@@ -28,6 +28,7 @@ type TeamData = {
     trackOpenTrack: boolean;
     trackFarcasterMiniapp: boolean;
     trackSelf: boolean;
+    trackV0: boolean;
   } | null;
 };
 
@@ -41,9 +42,12 @@ export default function SubmitModal({
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
   const [teamData, setTeamData] = React.useState<TeamData | null>(null);
   const [karmaGapLink, setKarmaGapLink] = React.useState("");
-  const [trackOpenTrack, setTrackOpenTrack] = React.useState(false);
-  const [trackFarcasterMiniapp, setTrackFarcasterMiniapp] = React.useState(false);
-  const [trackSelf, setTrackSelf] = React.useState(false);
+  const [selectedTracks, setSelectedTracks] = React.useState({
+    open: false,
+    miniapp: false,
+    humantech: false,
+    v0: false,
+  });
 
   // Reset state when modal closes
   React.useEffect(() => {
@@ -54,9 +58,7 @@ export default function SubmitModal({
       setErrorMessage(null);
       setTeamData(null);
       setKarmaGapLink("");
-      setTrackOpenTrack(false);
-      setTrackFarcasterMiniapp(false);
-      setTrackSelf(false);
+      setSelectedTracks({ open: false, miniapp: false, humantech: false, v0: false });
     }
   }, [open]);
 
@@ -74,9 +76,13 @@ export default function SubmitModal({
         const data = (await res.json()) as { team: TeamData };
         setTeamData(data.team);
         setKarmaGapLink(data.team.submission?.karmaGapLink || "");
-        setTrackOpenTrack(data.team.submission?.trackOpenTrack || false);
-        setTrackFarcasterMiniapp(data.team.submission?.trackFarcasterMiniapp || false);
-        setTrackSelf(data.team.submission?.trackSelf || false);
+        // Set selected tracks based on existing submission
+        setSelectedTracks({
+          open: data.team.submission?.trackOpenTrack || false,
+          miniapp: data.team.submission?.trackFarcasterMiniapp || false,
+          humantech: data.team.submission?.trackSelf || false,
+          v0: data.team.submission?.trackV0 || false,
+        });
         setStep("submit");
         setStatus("idle");
       } else {
@@ -113,10 +119,10 @@ export default function SubmitModal({
         return;
       }
 
-      // Validate at least one track is selected
-      if (!trackOpenTrack && !trackFarcasterMiniapp && !trackSelf) {
+      // Validate at least one primary track is selected (Open Track or MiniApps)
+      if (!selectedTracks.open && !selectedTracks.miniapp) {
         setStatus("error");
-        setErrorMessage("Please select at least one track for your project.");
+        setErrorMessage("Please select at least one primary track: Open Track or MiniApps.");
         return;
       }
 
@@ -126,9 +132,10 @@ export default function SubmitModal({
         body: JSON.stringify({
           teamId: teamData?.id,
           karmaGapLink: karmaGapLink.trim(),
-          trackOpenTrack,
-          trackFarcasterMiniapp,
-          trackSelf,
+          trackOpenTrack: selectedTracks.open,
+          trackFarcasterMiniapp: selectedTracks.miniapp,
+          trackSelf: selectedTracks.humantech,
+          trackV0: selectedTracks.v0,
         }),
       });
 
@@ -229,11 +236,16 @@ export default function SubmitModal({
 
             <Field label="Tracks *">
               <div className="space-y-3">
-                <label className="flex items-start gap-3 rounded-lg border border-black/10 bg-black/[0.02] p-3 hover:bg-black/[0.04] dark:border-white/10 dark:bg-white/[0.02] dark:hover:bg-white/[0.04]">
+                <label className={cn(
+                  "flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition-colors",
+                  selectedTracks.open
+                    ? "border-black/30 bg-black/[0.06] dark:border-white/30 dark:bg-white/[0.06]"
+                    : "border-black/10 bg-black/[0.02] hover:bg-black/[0.04] dark:border-white/10 dark:bg-white/[0.02] dark:hover:bg-white/[0.04]"
+                )}>
                   <input
                     type="checkbox"
-                    checked={trackOpenTrack}
-                    onChange={(e) => setTrackOpenTrack(e.target.checked)}
+                    checked={selectedTracks.open}
+                    onChange={(e) => setSelectedTracks({ ...selectedTracks, open: e.target.checked })}
                     disabled={status === "loading"}
                     className="mt-0.5"
                   />
@@ -245,11 +257,16 @@ export default function SubmitModal({
                   </div>
                 </label>
 
-                <label className="flex items-start gap-3 rounded-lg border border-black/10 bg-black/[0.02] p-3 hover:bg-black/[0.04] dark:border-white/10 dark:bg-white/[0.02] dark:hover:bg-white/[0.04]">
+                <label className={cn(
+                  "flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition-colors",
+                  selectedTracks.miniapp
+                    ? "border-black/30 bg-black/[0.06] dark:border-white/30 dark:bg-white/[0.06]"
+                    : "border-black/10 bg-black/[0.02] hover:bg-black/[0.04] dark:border-white/10 dark:bg-white/[0.02] dark:hover:bg-white/[0.04]"
+                )}>
                   <input
                     type="checkbox"
-                    checked={trackFarcasterMiniapp}
-                    onChange={(e) => setTrackFarcasterMiniapp(e.target.checked)}
+                    checked={selectedTracks.miniapp}
+                    onChange={(e) => setSelectedTracks({ ...selectedTracks, miniapp: e.target.checked })}
                     disabled={status === "loading"}
                     className="mt-0.5"
                   />
@@ -261,24 +278,50 @@ export default function SubmitModal({
                   </div>
                 </label>
 
-                <label className="flex items-start gap-3 rounded-lg border border-black/10 bg-black/[0.02] p-3 hover:bg-black/[0.04] dark:border-white/10 dark:bg-white/[0.02] dark:hover:bg-white/[0.04]">
+                <label className={cn(
+                  "flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition-colors",
+                  selectedTracks.humantech
+                    ? "border-black/30 bg-black/[0.06] dark:border-white/30 dark:bg-white/[0.06]"
+                    : "border-black/10 bg-black/[0.02] hover:bg-black/[0.04] dark:border-white/10 dark:bg-white/[0.02] dark:hover:bg-white/[0.04]"
+                )}>
                   <input
                     type="checkbox"
-                    checked={trackSelf}
-                    onChange={(e) => setTrackSelf(e.target.checked)}
+                    checked={selectedTracks.humantech}
+                    onChange={(e) => setSelectedTracks({ ...selectedTracks, humantech: e.target.checked })}
                     disabled={status === "loading"}
                     className="mt-0.5"
                   />
                   <div className="flex-1">
-                    <div className="text-sm font-medium">Self.xyz Track</div>
+                    <div className="text-sm font-medium">Human.Tech</div>
                     <div className="text-xs text-black/60 dark:text-white/60">
-                      Build with Self.xyz for identity solutions
+                      Build with Human.Tech stack (WaaP/Human Passport)
+                    </div>
+                  </div>
+                </label>
+
+                <label className={cn(
+                  "flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition-colors",
+                  selectedTracks.v0
+                    ? "border-black/30 bg-black/[0.06] dark:border-white/30 dark:bg-white/[0.06]"
+                    : "border-black/10 bg-black/[0.02] hover:bg-black/[0.04] dark:border-white/10 dark:bg-white/[0.02] dark:hover:bg-white/[0.04]"
+                )}>
+                  <input
+                    type="checkbox"
+                    checked={selectedTracks.v0}
+                    onChange={(e) => setSelectedTracks({ ...selectedTracks, v0: e.target.checked })}
+                    disabled={status === "loading"}
+                    className="mt-0.5"
+                  />
+                  <div className="flex-1">
+                    <div className="text-sm font-medium">v0</div>
+                    <div className="text-xs text-black/60 dark:text-white/60">
+                      Build with v0 and show the v0 branding on your site. Projects must be published as public templates in the v0 directory at https://v0.app/templates
                     </div>
                   </div>
                 </label>
               </div>
               <p className="mt-2 text-xs text-black/60 dark:text-white/60">
-                Select at least one track for your project
+                Select at least one primary track (Open Track or MiniApps). You can also select additional sponsor tracks (Human.Tech and/or v0).
               </p>
             </Field>
 
