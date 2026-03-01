@@ -21,10 +21,10 @@ type SubmissionFilter = "all" | "submitted" | "not_submitted";
 
 const FIELD_LABELS: Record<ExportField, string> = {
   teamName: "Team Name",
-  memberName: "Member Name",
-  memberEmail: "Email",
-  memberGithub: "GitHub Username",
-  country: "Country",
+  memberName: "Member Names",
+  memberEmail: "Member Emails",
+  memberGithub: "GitHub Usernames",
+  country: "Countries",
   walletAddress: "Wallet Address",
   registrationDate: "Registration Date",
   hasSubmission: "Has Submission",
@@ -77,66 +77,76 @@ export async function POST(request: Request) {
     // Create CSV headers based on selected fields
     const csvHeaders = requestedFields.map((field) => FIELD_LABELS[field]);
 
-    // Build CSV rows
-    const csvRows = teams.flatMap((team) =>
-      team.members.map((member) => {
-        const row: string[] = [];
+    // Build CSV rows - one row per team, with members concatenated
+    const csvRows = teams.map((team) => {
+      const row: string[] = [];
 
-        for (const field of requestedFields) {
-          let value = "";
+      // Concatenate member info
+      const memberNames = team.members.map((m) => m.memberName).join("; ");
+      const memberEmails = team.members.map((m) => m.memberEmail).join("; ");
+      const memberGithubs = team.members
+        .map((m) => m.memberGithub || "")
+        .filter(Boolean)
+        .join("; ");
+      const memberCountries = team.members
+        .map((m) => m.country || "")
+        .filter(Boolean)
+        .join("; ");
 
-          switch (field) {
-            case "teamName":
-              value = team.teamName;
-              break;
-            case "memberName":
-              value = member.memberName;
-              break;
-            case "memberEmail":
-              value = member.memberEmail;
-              break;
-            case "memberGithub":
-              value = member.memberGithub || "";
-              break;
-            case "country":
-              value = member.country || "";
-              break;
-            case "walletAddress":
-              value = team.walletAddress;
-              break;
-            case "registrationDate":
-              value = new Date(team.createdAt).toISOString().split("T")[0];
-              break;
-            case "hasSubmission":
-              value = team.submission ? "Yes" : "No";
-              break;
-            case "karmaGapLink":
-              value = team.submission?.karmaGapLink || "";
-              break;
-            case "tracks":
-              if (team.submission) {
-                const tracks = [];
-                if (team.submission.trackOpenTrack) tracks.push("Open Track");
-                if (team.submission.trackFarcasterMiniapp)
-                  tracks.push("MiniApps");
-                if (team.submission.trackSelf) tracks.push("Human.Tech");
-                if (team.submission.trackV0) tracks.push("v0");
-                value = tracks.join("; ");
-              }
-              break;
-            case "submissionDate":
-              value = team.submission
-                ? new Date(team.submission.createdAt).toISOString().split("T")[0]
-                : "";
-              break;
-          }
+      for (const field of requestedFields) {
+        let value = "";
 
-          row.push(value);
+        switch (field) {
+          case "teamName":
+            value = team.teamName;
+            break;
+          case "memberName":
+            value = memberNames;
+            break;
+          case "memberEmail":
+            value = memberEmails;
+            break;
+          case "memberGithub":
+            value = memberGithubs;
+            break;
+          case "country":
+            value = memberCountries;
+            break;
+          case "walletAddress":
+            value = team.walletAddress;
+            break;
+          case "registrationDate":
+            value = new Date(team.createdAt).toISOString().split("T")[0];
+            break;
+          case "hasSubmission":
+            value = team.submission ? "Yes" : "No";
+            break;
+          case "karmaGapLink":
+            value = team.submission?.karmaGapLink || "";
+            break;
+          case "tracks":
+            if (team.submission) {
+              const tracks = [];
+              if (team.submission.trackOpenTrack) tracks.push("Open Track");
+              if (team.submission.trackFarcasterMiniapp)
+                tracks.push("MiniApps");
+              if (team.submission.trackSelf) tracks.push("Human.Tech");
+              if (team.submission.trackV0) tracks.push("v0");
+              value = tracks.join("; ");
+            }
+            break;
+          case "submissionDate":
+            value = team.submission
+              ? new Date(team.submission.createdAt).toISOString().split("T")[0]
+              : "";
+            break;
         }
 
-        return row;
-      })
-    );
+        row.push(value);
+      }
+
+      return row;
+    });
 
     // Build CSV string
     const csvContent = [

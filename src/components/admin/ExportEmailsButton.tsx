@@ -19,10 +19,10 @@ type SubmissionFilter = "all" | "submitted" | "not_submitted";
 
 const DEFAULT_FIELDS: ExportField[] = [
   { id: "teamName", label: "Team Name", enabled: true },
-  { id: "memberName", label: "Member Name", enabled: true },
-  { id: "memberEmail", label: "Email", enabled: true },
-  { id: "memberGithub", label: "GitHub Username", enabled: true },
-  { id: "country", label: "Country", enabled: true },
+  { id: "memberName", label: "Member Names (all)", enabled: true },
+  { id: "memberEmail", label: "Member Emails (all)", enabled: true },
+  { id: "memberGithub", label: "GitHub Usernames (all)", enabled: true },
+  { id: "country", label: "Countries (all members)", enabled: true },
   { id: "walletAddress", label: "Wallet Address", enabled: false },
   { id: "registrationDate", label: "Registration Date", enabled: true },
   { id: "hasSubmission", label: "Has Submission", enabled: false },

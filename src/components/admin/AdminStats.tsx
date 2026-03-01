@@ -85,12 +85,16 @@ export function AdminStats({ teams }: { teams: TeamWithRelations[] }) {
     },
   ];
 
-  // Country distribution for submitted teams
+  // Country distribution for submitted teams - count teams, not members
   const submittedTeams = teams.filter((t) => t.submission !== null);
   const countryCount: Record<string, number> = {};
   submittedTeams.forEach((team) => {
-    team.members.forEach((member) => {
-      const country = member.country || "Unknown";
+    // Get unique countries from team members
+    const teamCountries = new Set(
+      team.members.map((m) => m.country || "Unknown")
+    );
+    // Count each team once per country they have members in
+    teamCountries.forEach((country) => {
       countryCount[country] = (countryCount[country] || 0) + 1;
     });
   });
@@ -193,7 +197,7 @@ export function AdminStats({ teams }: { teams: TeamWithRelations[] }) {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={trackData} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                <XAxis type="number" />
+                <XAxis type="number" allowDecimals={false} />
                 <YAxis dataKey="name" type="category" width={80} tick={{ fontSize: 12 }} />
                 <Tooltip />
                 <Bar dataKey="count" radius={[0, 4, 4, 0]}>
@@ -214,7 +218,7 @@ export function AdminStats({ teams }: { teams: TeamWithRelations[] }) {
               <BarChart data={registrationData}>
                 <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                 <XAxis dataKey="date" tick={{ fontSize: 10 }} />
-                <YAxis />
+                <YAxis allowDecimals={false} />
                 <Tooltip />
                 <Bar dataKey="registrations" fill="#3b82f6" radius={[4, 4, 0, 0]} />
               </BarChart>
@@ -230,7 +234,7 @@ export function AdminStats({ teams }: { teams: TeamWithRelations[] }) {
               <BarChart data={submissionTimelineData}>
                 <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                 <XAxis dataKey="date" tick={{ fontSize: 10 }} />
-                <YAxis />
+                <YAxis allowDecimals={false} />
                 <Tooltip />
                 <Bar dataKey="submissions" fill="#22c55e" radius={[4, 4, 0, 0]} />
               </BarChart>
@@ -247,7 +251,7 @@ export function AdminStats({ teams }: { teams: TeamWithRelations[] }) {
                 <BarChart data={countryData}>
                   <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                   <XAxis dataKey="name" tick={{ fontSize: 10 }} />
-                  <YAxis />
+                  <YAxis allowDecimals={false} />
                   <Tooltip />
                   <Bar dataKey="count" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
                 </BarChart>
