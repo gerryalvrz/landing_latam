@@ -85,16 +85,13 @@ export function AdminStats({ teams }: { teams: TeamWithRelations[] }) {
     },
   ];
 
-  // Country distribution for submitted teams - count teams, not members
+  // Country distribution - members from teams that submitted
   const submittedTeams = teams.filter((t) => t.submission !== null);
   const countryCount: Record<string, number> = {};
   submittedTeams.forEach((team) => {
-    // Get unique countries from team members
-    const teamCountries = new Set(
-      team.members.map((m) => m.country || "Unknown")
-    );
-    // Count each team once per country they have members in
-    teamCountries.forEach((country) => {
+    // Count each member from submitted teams
+    team.members.forEach((member) => {
+      const country = member.country || "Unknown";
       countryCount[country] = (countryCount[country] || 0) + 1;
     });
   });

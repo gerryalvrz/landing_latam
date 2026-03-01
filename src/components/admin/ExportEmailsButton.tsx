@@ -26,6 +26,7 @@ const DEFAULT_FIELDS: ExportField[] = [
   { id: "walletAddress", label: "Wallet Address", enabled: false },
   { id: "registrationDate", label: "Registration Date", enabled: true },
   { id: "hasSubmission", label: "Has Submission", enabled: false },
+  { id: "meetsLatamCriteria", label: "Meets >50% LATAM", enabled: true },
   { id: "karmaGapLink", label: "Karma Gap Link", enabled: false },
   { id: "tracks", label: "Selected Tracks", enabled: false },
   { id: "submissionDate", label: "Submission Date", enabled: false },

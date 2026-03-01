@@ -13,6 +13,7 @@ type ExportField =
   | "walletAddress"
   | "registrationDate"
   | "hasSubmission"
+  | "meetsLatamCriteria"
   | "karmaGapLink"
   | "tracks"
   | "submissionDate";
@@ -28,10 +29,20 @@ const FIELD_LABELS: Record<ExportField, string> = {
   walletAddress: "Wallet Address",
   registrationDate: "Registration Date",
   hasSubmission: "Has Submission",
+  meetsLatamCriteria: "Meets >50% LATAM",
   karmaGapLink: "Karma Gap Link",
   tracks: "Selected Tracks",
   submissionDate: "Submission Date",
 };
+
+function checkLatamCriteria(members: { country: string | null }[]): boolean {
+  const totalCount = members.length;
+  if (totalCount === 0) return false;
+  const latamCount = members.filter(
+    (m) => m.country && m.country !== "Non Latin America Country"
+  ).length;
+  return (latamCount / totalCount) * 100 > 50;
+}
 
 export async function POST(request: Request) {
   // Verify admin authentication
@@ -120,6 +131,9 @@ export async function POST(request: Request) {
             break;
           case "hasSubmission":
             value = team.submission ? "Yes" : "No";
+            break;
+          case "meetsLatamCriteria":
+            value = checkLatamCriteria(team.members) ? "Yes" : "No";
             break;
           case "karmaGapLink":
             value = team.submission?.karmaGapLink || "";
