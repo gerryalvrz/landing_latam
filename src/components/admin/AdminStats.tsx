@@ -102,33 +102,47 @@ export function AdminStats({ teams }: { teams: TeamWithRelations[] }) {
     .slice(0, 8); // Top 8 countries
 
   // Registration timeline (by day)
-  const registrationByDay: Record<string, number> = {};
+  const registrationByDay: Record<string, { count: number; timestamp: number }> = {};
   teams.forEach((team) => {
-    const date = new Date(team.createdAt).toLocaleDateString("en-US", {
+    const dateObj = new Date(team.createdAt);
+    const dateKey = dateObj.toISOString().split("T")[0]; // YYYY-MM-DD for sorting
+    const dateLabel = dateObj.toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
     });
-    registrationByDay[date] = (registrationByDay[date] || 0) + 1;
+    if (!registrationByDay[dateKey]) {
+      registrationByDay[dateKey] = { count: 0, timestamp: dateObj.getTime() };
+    }
+    registrationByDay[dateKey].count += 1;
   });
 
   const registrationData = Object.entries(registrationByDay)
-    .map(([date, count]) => ({ date, registrations: count }))
+    .sort(([a], [b]) => a.localeCompare(b)) // Sort by YYYY-MM-DD
+    .map(([dateKey, { count }]) => ({
+      date: new Date(dateKey).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+      registrations: count,
+    }))
     .slice(-14); // Last 14 days
 
   // Submission timeline
-  const submissionByDay: Record<string, number> = {};
+  const submissionByDay: Record<string, { count: number; timestamp: number }> = {};
   submittedTeams.forEach((team) => {
     if (team.submission) {
-      const date = new Date(team.submission.createdAt).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-      });
-      submissionByDay[date] = (submissionByDay[date] || 0) + 1;
+      const dateObj = new Date(team.submission.createdAt);
+      const dateKey = dateObj.toISOString().split("T")[0]; // YYYY-MM-DD for sorting
+      if (!submissionByDay[dateKey]) {
+        submissionByDay[dateKey] = { count: 0, timestamp: dateObj.getTime() };
+      }
+      submissionByDay[dateKey].count += 1;
     }
   });
 
   const submissionTimelineData = Object.entries(submissionByDay)
-    .map(([date, count]) => ({ date, submissions: count }))
+    .sort(([a], [b]) => a.localeCompare(b)) // Sort by YYYY-MM-DD
+    .map(([dateKey, { count }]) => ({
+      date: new Date(dateKey).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+      submissions: count,
+    }))
     .slice(-14);
 
   return (
@@ -171,17 +185,23 @@ export function AdminStats({ teams }: { teams: TeamWithRelations[] }) {
                   data={submissionStatusData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={60}
-                  outerRadius={80}
+                  innerRadius={50}
+                  outerRadius={70}
                   paddingAngle={5}
                   dataKey="value"
-                  label={({ name, percent }) => `${name} (${((percent ?? 0) * 100).toFixed(0)}%)`}
+                  label={({ percent }) => `${((percent ?? 0) * 100).toFixed(0)}%`}
+                  labelLine={false}
                 >
                   {submissionStatusData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
                 <Tooltip />
+                <Legend
+                  verticalAlign="bottom"
+                  height={36}
+                  formatter={(value) => <span className="text-xs">{value}</span>}
+                />
               </PieChart>
             </ResponsiveContainer>
           </div>
