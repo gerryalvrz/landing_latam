@@ -14,7 +14,10 @@ type ExportField =
   | "registrationDate"
   | "hasSubmission"
   | "karmaGapLink"
-  | "tracks";
+  | "tracks"
+  | "submissionDate";
+
+type SubmissionFilter = "all" | "submitted" | "not_submitted";
 
 const FIELD_LABELS: Record<ExportField, string> = {
   teamName: "Team Name",
@@ -27,6 +30,7 @@ const FIELD_LABELS: Record<ExportField, string> = {
   hasSubmission: "Has Submission",
   karmaGapLink: "Karma Gap Link",
   tracks: "Selected Tracks",
+  submissionDate: "Submission Date",
 };
 
 export async function POST(request: Request) {
@@ -37,7 +41,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    let body: { fields?: string[] };
+    let body: { fields?: string[]; filter?: SubmissionFilter };
     try {
       body = await request.json();
     } catch {
@@ -45,6 +49,7 @@ export async function POST(request: Request) {
     }
 
     const requestedFields = (body.fields || []) as ExportField[];
+    const submissionFilter: SubmissionFilter = body.filter || "all";
 
     if (requestedFields.length === 0) {
       return NextResponse.json(
@@ -54,13 +59,20 @@ export async function POST(request: Request) {
     }
 
     // Fetch all teams with their members and submissions
-    const teams = await prisma.team.findMany({
+    let teams = await prisma.team.findMany({
       include: {
         members: true,
         submission: true,
       },
       orderBy: { createdAt: "desc" },
     });
+
+    // Apply submission filter
+    if (submissionFilter === "submitted") {
+      teams = teams.filter((t) => t.submission !== null);
+    } else if (submissionFilter === "not_submitted") {
+      teams = teams.filter((t) => t.submission === null);
+    }
 
     // Create CSV headers based on selected fields
     const csvHeaders = requestedFields.map((field) => FIELD_LABELS[field]);
@@ -111,6 +123,11 @@ export async function POST(request: Request) {
                 if (team.submission.trackV0) tracks.push("v0");
                 value = tracks.join("; ");
               }
+              break;
+            case "submissionDate":
+              value = team.submission
+                ? new Date(team.submission.createdAt).toISOString().split("T")[0]
+                : "";
               break;
           }
 

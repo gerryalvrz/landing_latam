@@ -15,6 +15,8 @@ type ExportField = {
   enabled: boolean;
 };
 
+type SubmissionFilter = "all" | "submitted" | "not_submitted";
+
 const DEFAULT_FIELDS: ExportField[] = [
   { id: "teamName", label: "Team Name", enabled: true },
   { id: "memberName", label: "Member Name", enabled: true },
@@ -26,12 +28,14 @@ const DEFAULT_FIELDS: ExportField[] = [
   { id: "hasSubmission", label: "Has Submission", enabled: false },
   { id: "karmaGapLink", label: "Karma Gap Link", enabled: false },
   { id: "tracks", label: "Selected Tracks", enabled: false },
+  { id: "submissionDate", label: "Submission Date", enabled: false },
 ];
 
 export function ExportEmailsButton() {
   const [isOpen, setIsOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [fields, setFields] = useState<ExportField[]>(DEFAULT_FIELDS);
+  const [submissionFilter, setSubmissionFilter] = useState<SubmissionFilter>("all");
 
   const toggleField = (fieldId: string) => {
     setFields((prev) =>
@@ -64,7 +68,7 @@ export function ExportEmailsButton() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ fields: selectedFields }),
+        body: JSON.stringify({ fields: selectedFields, filter: submissionFilter }),
       });
 
       if (!response.ok) {
@@ -128,6 +132,46 @@ export function ExportEmailsButton() {
           </DialogHeader>
 
           <div className="mt-4">
+            {/* Submission Filter */}
+            <div className="mb-4">
+              <div className="text-xs font-medium text-black/60 dark:text-white/60 mb-2">
+                Filter teams by submission status
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setSubmissionFilter("all")}
+                  className={`rounded-full px-3 py-1 text-xs font-medium transition-all ${
+                    submissionFilter === "all"
+                      ? "bg-foreground text-background"
+                      : "bg-black/5 text-black/70 hover:bg-black/10 dark:bg-white/10 dark:text-white/70"
+                  }`}
+                >
+                  All Teams
+                </button>
+                <button
+                  onClick={() => setSubmissionFilter("submitted")}
+                  className={`rounded-full px-3 py-1 text-xs font-medium transition-all ${
+                    submissionFilter === "submitted"
+                      ? "bg-green-600 text-white"
+                      : "bg-green-500/10 text-green-700 hover:bg-green-500/20 dark:text-green-300"
+                  }`}
+                >
+                  Submitted Only
+                </button>
+                <button
+                  onClick={() => setSubmissionFilter("not_submitted")}
+                  className={`rounded-full px-3 py-1 text-xs font-medium transition-all ${
+                    submissionFilter === "not_submitted"
+                      ? "bg-amber-600 text-white"
+                      : "bg-amber-500/10 text-amber-700 hover:bg-amber-500/20 dark:text-amber-300"
+                  }`}
+                >
+                  Not Submitted
+                </button>
+              </div>
+            </div>
+
+            {/* Field Selection */}
             <div className="mb-4 flex gap-2">
               <button
                 onClick={selectAll}
@@ -144,7 +188,7 @@ export function ExportEmailsButton() {
               </button>
             </div>
 
-            <div className="space-y-2 max-h-[400px] overflow-y-auto">
+            <div className="space-y-2 max-h-[300px] overflow-y-auto">
               {fields.map((field) => (
                 <label
                   key={field.id}
