@@ -242,7 +242,7 @@ export function AdminStats({ teams }: { teams: TeamWithRelations[] }) {
         {/* Country Distribution (Submitted Teams) */}
         {countryData.length > 0 && (
           <div className="rounded-xl border border-black/10 bg-white p-6 dark:border-white/10 dark:bg-white/[0.03] lg:col-span-2">
-            <h3 className="text-sm font-semibold mb-4">Submitted Teams by Country (Top 8)</h3>
+            <h3 className="text-sm font-semibold mb-4">Members from Submitted Teams by Country (Top 8)</h3>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={countryData}>
