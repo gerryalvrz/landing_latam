@@ -142,12 +142,12 @@ export const TIMELINE = [
   },
   {
     title: "Buildathon",
-    range: "Jan 19 → Feb 27, 2026",
-    note: "Registrations remain open until Feb 27.",
+    range: "Jan 19 → Mar 8, 2026",
+    note: "Registrations remain open until Mar 8.",
   },
   {
     title: "Winners announced",
-    range: "Mar 6, 2026",
+    range: "Mar 16, 2026",
     note: "Top projects + special awards revealed.",
   },
 ] as const;

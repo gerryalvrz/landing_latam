@@ -246,8 +246,8 @@ export default function Home() {
               </div>
 
               <div className="mt-12 grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-3">
-                <Stat label="Buildathon" value="Jan 19 → Feb 27, 2026" />
-                <Stat label="Winners" value="Mar 6, 2026" />
+                <Stat label="Buildathon" value="Jan 19 → Mar 8, 2026" />
+                <Stat label="Winners" value="Mar 16, 2026" />
                 <Stat label="Region" value="Latin America" />
               </div>
 

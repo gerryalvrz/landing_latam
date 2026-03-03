@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import SubmitButton from "@/components/submit/SubmitButton";
 
-const SUBMISSION_END_DATE = new Date("2026-02-27T23:59:59Z");
+const SUBMISSION_END_DATE = new Date("2026-03-08T23:59:59Z");
 
 type TimeLeft = {
   days: number;
@@ -71,7 +71,7 @@ export function Countdown({ className }: { className?: string }) {
             Submissions Closed
           </div>
           <p className="mt-2 text-sm text-red-600 dark:text-red-400">
-            The submission deadline has passed. Winners will be announced on Mar 6, 2026.
+            The submission deadline has passed. Winners will be announced on Mar 16, 2026.
           </p>
         </div>
       </div>
@@ -115,7 +115,7 @@ export function Countdown({ className }: { className?: string }) {
                 : "text-amber-600 dark:text-amber-400"
             }`}
           >
-            Deadline: Feb 27, 2026 at 23:59:59 UTC
+            Deadline: Mar 8, 2026 at 23:59:59 UTC
           </div>
 
           {/* Compact timezone conversions */}
